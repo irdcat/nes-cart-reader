@@ -1,5 +1,4 @@
-use core::fmt;
-use std::str;
+use std::{str, fmt, error};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct InvalidHeaderError;
@@ -7,6 +6,12 @@ pub struct InvalidHeaderError;
 impl fmt::Display for InvalidHeaderError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "Invalid header constant")
+    }
+}
+
+impl error::Error for InvalidHeaderError {
+    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
+        None
     }
 }
 
@@ -29,7 +34,7 @@ pub struct RomHeader {
 }
 
 impl RomHeader {
-    pub fn parse(header_data: [u8; 16]) -> Result<RomHeader, InvalidHeaderError> {
+    pub fn parse(header_data: &[u8; 16]) -> Result<RomHeader, InvalidHeaderError> {
         str::from_utf8(&header_data[0..4])
             .or_else(|_| -> Result<&str, InvalidHeaderError> {
                 Err(InvalidHeaderError)
@@ -69,7 +74,7 @@ mod tests {
     #[test]
     fn parse_valid_header() {
         let valid_header: [u8; 16] = [0x4E, 0x45, 0x53, 0x1A, 0x10, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-        let result = RomHeader::parse(valid_header);
+        let result = RomHeader::parse(&valid_header);
 
         assert_eq!(result, Ok(RomHeader{
             prg_rom_banks: 16,
@@ -84,7 +89,7 @@ mod tests {
     #[test]
     fn parse_invalid_header() {
         let invalid_header: [u8; 16] = [0x4E, 0x45, 0x53, 0x23, 0x10, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00];
-        let result = RomHeader::parse(invalid_header);
+        let result = RomHeader::parse(&invalid_header);
 
         assert_eq!(result, Err(InvalidHeaderError));
     }
