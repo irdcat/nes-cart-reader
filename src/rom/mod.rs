@@ -76,7 +76,11 @@ mod tests {
                 mapper: 1,
                 trainer_present: false,
                 mirroring: Mirroring::Horizontal,
-                nes2: false
+                nes2: false,
+                prg_ram_banks: 1,
+                tv_system: TvSystem::NTSC,
+                prg_ram_present: false,
+                has_bus_conflicts: false
             }
         }));
     }
