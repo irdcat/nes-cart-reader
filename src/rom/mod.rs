@@ -1,4 +1,5 @@
 mod header;
+mod chr;
 
 use std::{error, fmt};
 use self::header::{InvalidHeaderError, RomHeader};
@@ -48,7 +49,7 @@ impl RomReader {
         let header_parse_result = RomHeader::parse(header_data);
         match header_parse_result {
             Ok(value) => Ok(RomReaderResult { header: value }),
-            Err(e) => Err(RomReaderError::InvalidHeader(e))
+            Err(e) => Err(RomReaderError::from(e))
         }
     }
 }
