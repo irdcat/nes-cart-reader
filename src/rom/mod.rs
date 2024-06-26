@@ -1,5 +1,5 @@
-mod header;
-mod chr;
+pub mod header;
+pub mod chr;
 
 use std::{error, fmt};
 use self::header::{InvalidHeaderError, RomHeader};
