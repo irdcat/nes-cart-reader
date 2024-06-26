@@ -1,4 +1,4 @@
-use std::{str, fmt, error};
+use std::{error, fmt, str::{self, FromStr}};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct InvalidHeaderError;
@@ -15,7 +15,7 @@ impl error::Error for InvalidHeaderError {
     }
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Mirroring {
     Vertical,
     Horizontal,
@@ -23,7 +23,18 @@ pub enum Mirroring {
     SingleScreen
 }
 
-#[derive(PartialEq, Debug)]
+impl ToString for Mirroring {
+    fn to_string(&self) -> String {
+        match *self {
+            Mirroring::Vertical => "Vertical".to_string(),
+            Mirroring::Horizontal => "Horizontal".to_string(),
+            Mirroring::FourScreen => "Four Screen".to_string(),
+            Mirroring::SingleScreen => "Single Screen".to_string(),
+        }
+    }
+}
+
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum TvSystem {
     NTSC,
     PAL,
@@ -31,7 +42,18 @@ pub enum TvSystem {
     Dendy
 }
 
-#[derive(PartialEq, Debug)]
+impl ToString for TvSystem {
+    fn to_string(&self) -> String {
+        match *self {
+            TvSystem::NTSC => "NTSC".to_string(),
+            TvSystem::PAL => "PAL".to_string(),
+            TvSystem::DualCompatible => "Dual Compatible".to_string(),
+            TvSystem::Dendy => "Dendy".to_string(),
+        }
+    }
+}
+
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub struct RomHeader {
     pub prg_rom_size: u64,
     pub chr_rom_size: u64,
