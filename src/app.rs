@@ -1,22 +1,25 @@
 use std::collections::HashMap;
 
-use gloo::file::{callbacks::{read_as_bytes, FileReader}, File};
+use gloo::file::{
+    callbacks::{read_as_bytes, FileReader},
+    File,
+};
 use uuid::Uuid;
 use web_sys::HtmlInputElement;
 use yew::{html, Component, Context, Event, Html, TargetCast};
 
-use crate::rom::{RomReader, RomReaderParams, RomReaderResult};
 use crate::header::Header;
+use crate::rom::{RomReader, RomReaderParams, RomReaderResult};
 
 pub struct App {
     readers: HashMap<String, FileReader>,
-    result: Option<RomReaderResult>
+    result: Option<RomReaderResult>,
 }
 
 pub enum AppMessage {
     FileUploaded(File),
     FileLoadSuccess(String, Vec<u8>),
-    FileLoadFailure(String, String)
+    FileLoadFailure(String, String),
 }
 
 impl Component for App {
@@ -24,9 +27,9 @@ impl Component for App {
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
-        Self { 
-            readers: HashMap::with_capacity(1), 
-            result: None 
+        Self {
+            readers: HashMap::with_capacity(1),
+            result: None,
         }
     }
 
@@ -47,21 +50,24 @@ impl Component for App {
                 };
                 self.readers.insert(uuid, task);
                 true
-            },
+            }
             AppMessage::FileLoadSuccess(uuid, bytes) => {
                 let link = ctx.link().clone();
-                match RomReader::read(RomReaderParams{ data: bytes, origin: 0xC000 }) {
+                match RomReader::read(RomReaderParams {
+                    data: bytes,
+                    origin: 0xC000,
+                }) {
                     Ok(result) => {
                         self.result = Some(result);
                         self.readers.remove(&uuid);
-                    },
+                    }
                     Err(error) => {
                         link.send_message(AppMessage::FileLoadFailure(uuid, error.to_string()))
-                    },
+                    }
                 }
                 true
-            },
-            AppMessage::FileLoadFailure(uuid, message) => {
+            }
+            AppMessage::FileLoadFailure(uuid, _message) => {
                 // TODO: Handle failure
                 self.readers.remove(&uuid);
                 true
@@ -72,20 +78,16 @@ impl Component for App {
     fn view(&self, ctx: &Context<Self>) -> Html {
         let onchange = ctx.link().callback(move |e: Event| {
             let input: HtmlInputElement = e.target_unchecked_into();
-            let file = input.files()
-                .unwrap()
-                .get(0)
-                .map(File::from)
-                .unwrap();
+            let file = input.files().unwrap().get(0).map(File::from).unwrap();
             AppMessage::FileUploaded(file)
         });
-        
+
         html! {
             <>
                 <nav>
-                    <input 
-                        type="file" 
-                        multiple={false} 
+                    <input
+                        type="file"
+                        multiple={false}
                         {onchange}
                     />
                 </nav>

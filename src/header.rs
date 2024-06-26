@@ -4,7 +4,7 @@ use crate::rom::header::RomHeader;
 
 #[derive(Properties, PartialEq)]
 pub struct HeaderProps {
-    pub rom_header: Option<RomHeader>
+    pub rom_header: Option<RomHeader>,
 }
 
 #[function_component(Header)]
