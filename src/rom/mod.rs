@@ -1,28 +1,30 @@
-pub mod header;
 pub mod chr;
+pub mod header;
 
-use std::{error, fmt};
 use self::header::{InvalidHeaderError, RomHeader};
+use std::{error, fmt};
 
 #[derive(Debug, PartialEq)]
 pub struct RomReaderResult {
-    pub header: RomHeader
+    pub header: RomHeader,
 }
 
+// TODO: Remove it later
+#[allow(dead_code)]
 pub struct RomReaderParams {
     pub data: Vec<u8>,
-    pub origin: u16
+    pub origin: u16,
 }
 
 #[derive(Debug, PartialEq)]
-pub enum RomReaderError{
-    InvalidHeader(InvalidHeaderError)
+pub enum RomReaderError {
+    InvalidHeader(InvalidHeaderError),
 }
 
 impl fmt::Display for RomReaderError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            RomReaderError::InvalidHeader(e) => e.fmt(f)
+            RomReaderError::InvalidHeader(e) => e.fmt(f),
         }
     }
 }
@@ -45,11 +47,13 @@ pub struct RomReader;
 
 impl RomReader {
     pub fn read(params: RomReaderParams) -> Result<RomReaderResult, RomReaderError> {
-        let header_data: &[u8; 16] = &params.data[0..16].try_into().expect("Slice with incorrect lenght!");
+        let header_data: &[u8; 16] = &params.data[0..16]
+            .try_into()
+            .expect("Slice with incorrect lenght!");
         let header_parse_result = RomHeader::parse(header_data);
         match header_parse_result {
             Ok(value) => Ok(RomReaderResult { header: value }),
-            Err(e) => Err(RomReaderError::from(e))
+            Err(e) => Err(RomReaderError::from(e)),
         }
     }
 }

@@ -24,7 +24,7 @@ impl error::Error for InvalidChrDataError {
 
 #[derive(PartialEq, Debug, Copy, Clone)]
 pub struct Tile {
-    pub pattern: [u16; TILE_ROWS]
+    pub pattern: [u16; TILE_ROWS],
 }
 
 #[derive(PartialEq, Debug)]
@@ -45,9 +45,9 @@ impl ChrData {
             let tiles = ChrData::get_tiles_from_pattern_table(pattern_table_id, &chr_data);
             tables.push(tiles);
         }
-        
-        Ok(ChrData{
-            pattern_tables: tables
+
+        Ok(ChrData {
+            pattern_tables: tables,
         })
     }
 
@@ -59,17 +59,25 @@ impl ChrData {
         pattern
     }
 
-    fn get_tiles_from_pattern_table(pattern_table_id: usize, chr_data: &Vec<u8>) -> [Tile; TILES_PER_PATTERN_TABLE] {
-        let mut tiles: [Tile; TILES_PER_PATTERN_TABLE] = [Tile { pattern: [0; TILE_ROWS] }; TILES_PER_PATTERN_TABLE];
+    fn get_tiles_from_pattern_table(
+        pattern_table_id: usize,
+        chr_data: &[u8],
+    ) -> [Tile; TILES_PER_PATTERN_TABLE] {
+        let mut tiles: [Tile; TILES_PER_PATTERN_TABLE] = [Tile {
+            pattern: [0; TILE_ROWS],
+        }; TILES_PER_PATTERN_TABLE];
         for tile_number in 0..TILES_PER_PATTERN_TABLE {
-            let offset = PATTERN_TABLE_SIZE_IN_BYTES * pattern_table_id + tile_number * TILE_SIZE_IN_BYTES;
+            let offset =
+                PATTERN_TABLE_SIZE_IN_BYTES * pattern_table_id + tile_number * TILE_SIZE_IN_BYTES;
             let mut tile_pattern: [u16; TILE_ROWS] = [0; TILE_ROWS];
             for row in 0..TILE_ROWS {
                 let tile_lsb = chr_data[offset + row + 0x0000];
                 let tile_msb = chr_data[offset + row + 0x0008];
                 tile_pattern[row] = ChrData::interleave_pattern_bytes(tile_lsb, tile_msb);
             }
-            tiles[tile_number] = Tile { pattern: tile_pattern };
+            tiles[tile_number] = Tile {
+                pattern: tile_pattern,
+            };
         }
         tiles
     }
@@ -81,7 +89,10 @@ mod tests {
 
     #[test]
     fn parse_invalid_chr_data() {
-        let invalid_chr_data: Vec<u8> = [0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF].to_vec();
+        let invalid_chr_data: Vec<u8> = [
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+        ]
+        .to_vec();
         assert_eq!(ChrData::parse(invalid_chr_data), Err(InvalidChrDataError));
     }
 
@@ -89,15 +100,17 @@ mod tests {
     fn parse_valid_chr_data() {
         let mut valid_chr_data: Vec<u8> = [0; 0x2000].to_vec();
         let valid_tile_data: [u8; 16] = [
-            0x41, 0xC2, 0x44, 0x48, 0x10, 0x20, 0x40, 0x80,
-            0x01, 0x02, 0x04, 0x08, 0x16, 0x21, 0x42, 0x87
+            0x41, 0xC2, 0x44, 0x48, 0x10, 0x20, 0x40, 0x80, 0x01, 0x02, 0x04, 0x08, 0x16, 0x21,
+            0x42, 0x87,
         ];
         for i in 0..valid_tile_data.len() {
             valid_chr_data[i] = valid_tile_data[i];
         }
-        
-        let expected_tile = Tile { 
-            pattern: [0x1003, 0x500C, 0x1030, 0x10C0, 0x0328, 0x0C02, 0x3008, 0xC02A]
+
+        let expected_tile = Tile {
+            pattern: [
+                0x1003, 0x500C, 0x1030, 0x10C0, 0x0328, 0x0C02, 0x3008, 0xC02A,
+            ],
         };
         let result = ChrData::parse(valid_chr_data);
         assert_eq!(true, result.is_ok());
