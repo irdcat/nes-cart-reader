@@ -1,7 +1,4 @@
-use std::{
-    error, fmt,
-    str,
-};
+use std::{error, fmt, str};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct InvalidHeaderError;
@@ -81,7 +78,7 @@ const PRG_RAM_BANK_SIZE: u64 = 8192;
 impl RomHeader {
     pub fn parse(header_data: &[u8; 16]) -> Result<RomHeader, InvalidHeaderError> {
         str::from_utf8(&header_data[0..4])
-            .map_err(|_| { InvalidHeaderError })
+            .map_err(|_| InvalidHeaderError)
             .and_then(|constant| -> Result<RomHeader, InvalidHeaderError> {
                 if constant.eq("NES\x1A") {
                     let ines2 = ((header_data[7] >> 2) & 3) == 2;

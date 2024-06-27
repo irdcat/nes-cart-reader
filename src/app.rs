@@ -17,9 +17,9 @@ pub struct App {
 }
 
 pub enum AppMessage {
-    FileUploaded(File),
-    FileLoadSuccess(String, Vec<u8>),
-    FileLoadFailure(String, String),
+    Uploaded(File),
+    LoadSuccess(String, Vec<u8>),
+    LoadFailure(String, String),
 }
 
 impl Component for App {
@@ -35,15 +35,15 @@ impl Component for App {
 
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
         match msg {
-            AppMessage::FileUploaded(file) => {
+            AppMessage::Uploaded(file) => {
                 let link = ctx.link().clone();
                 let uuid = Uuid::new_v4().to_string();
                 let task = {
                     let uuid = uuid.clone();
                     read_as_bytes(&file, move |result| {
                         let msg = match result {
-                            Ok(data) => AppMessage::FileLoadSuccess(uuid, data),
-                            Err(err) => AppMessage::FileLoadFailure(uuid, err.to_string()),
+                            Ok(data) => AppMessage::LoadSuccess(uuid, data),
+                            Err(err) => AppMessage::LoadFailure(uuid, err.to_string()),
                         };
                         link.send_message(msg);
                     })
@@ -51,7 +51,7 @@ impl Component for App {
                 self.readers.insert(uuid, task);
                 true
             }
-            AppMessage::FileLoadSuccess(uuid, bytes) => {
+            AppMessage::LoadSuccess(uuid, bytes) => {
                 let link = ctx.link().clone();
                 match RomReader::read(RomReaderParams {
                     data: bytes,
@@ -62,12 +62,12 @@ impl Component for App {
                         self.readers.remove(&uuid);
                     }
                     Err(error) => {
-                        link.send_message(AppMessage::FileLoadFailure(uuid, error.to_string()))
+                        link.send_message(AppMessage::LoadFailure(uuid, error.to_string()))
                     }
                 }
                 true
             }
-            AppMessage::FileLoadFailure(uuid, _message) => {
+            AppMessage::LoadFailure(uuid, _message) => {
                 // TODO: Handle failure
                 self.readers.remove(&uuid);
                 true
@@ -79,7 +79,7 @@ impl Component for App {
         let onchange = ctx.link().callback(move |e: Event| {
             let input: HtmlInputElement = e.target_unchecked_into();
             let file = input.files().unwrap().get(0).map(File::from).unwrap();
-            AppMessage::FileUploaded(file)
+            AppMessage::Uploaded(file)
         });
 
         html! {
