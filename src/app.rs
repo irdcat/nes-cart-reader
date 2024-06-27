@@ -9,7 +9,7 @@ use web_sys::HtmlInputElement;
 use yew::{html, Component, Context, Event, Html, TargetCast};
 
 use crate::header::Header;
-use crate::rom::{RomReader, RomReaderParams, RomReaderResult};
+use crate::rom::reader::{RomReader, RomReaderParams, RomReaderResult};
 
 pub struct App {
     readers: HashMap<String, FileReader>,
