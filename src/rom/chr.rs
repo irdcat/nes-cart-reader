@@ -66,16 +66,16 @@ impl ChrData {
         let mut tiles: [Tile; TILES_PER_PATTERN_TABLE] = [Tile {
             pattern: [0; TILE_ROWS],
         }; TILES_PER_PATTERN_TABLE];
-        for tile_number in 0..TILES_PER_PATTERN_TABLE {
+        for (tile_number, tile) in tiles.iter_mut().enumerate().take(TILES_PER_PATTERN_TABLE) {
             let offset =
                 PATTERN_TABLE_SIZE_IN_BYTES * pattern_table_id + tile_number * TILE_SIZE_IN_BYTES;
             let mut tile_pattern: [u16; TILE_ROWS] = [0; TILE_ROWS];
             for row in 0..TILE_ROWS {
-                let tile_lsb = chr_data[offset + row + 0x0000];
-                let tile_msb = chr_data[offset + row + 0x0008];
+                let tile_lsb = chr_data[offset + row];
+                let tile_msb = chr_data[offset + row + 8];
                 tile_pattern[row] = ChrData::interleave_pattern_bytes(tile_lsb, tile_msb);
             }
-            tiles[tile_number] = Tile {
+            *tile = Tile {
                 pattern: tile_pattern,
             };
         }
