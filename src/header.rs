@@ -1,10 +1,10 @@
 use yew::prelude::*;
 
-use crate::rom::header::RomHeader;
+use crate::rom::header_data::HeaderData;
 
 #[derive(Properties, PartialEq)]
 pub struct HeaderProps {
-    pub rom_header: Option<RomHeader>,
+    pub rom_header: Option<HeaderData>,
 }
 
 #[function_component(Header)]

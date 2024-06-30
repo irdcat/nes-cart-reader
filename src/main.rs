@@ -1,5 +1,6 @@
 mod app;
 mod header;
+mod chr;
 mod rom;
 
 use app::App;
