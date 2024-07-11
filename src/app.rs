@@ -1,12 +1,13 @@
 use std::collections::HashMap;
+use wasm_bindgen::JsCast;
 
 use gloo::file::{
     callbacks::{read_as_bytes, FileReader},
     File,
 };
 use uuid::Uuid;
-use web_sys::HtmlInputElement;
-use yew::{html, Component, Context, Event, Html, TargetCast};
+use web_sys::{HtmlButtonElement, HtmlInputElement};
+use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
 
 use crate::header::Header;
 use crate::rom::reader::{RomReader, RomReaderParams, RomReaderResult};
@@ -79,17 +80,39 @@ impl Component for App {
         let onchange = ctx.link().callback(move |e: Event| {
             let input: HtmlInputElement = e.target_unchecked_into();
             let file = input.files().unwrap().get(0).map(File::from).unwrap();
+            let file_name = file.name();
+            let input_element = web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .get_element_by_id("romName")
+                .unwrap()
+                .unchecked_into::<HtmlInputElement>();
+            input_element.set_value(&file_name);
             AppMessage::Uploaded(file)
+        });
+
+        let onclick = Callback::from(move |_| {
+            let button_element = web_sys::window()
+                .unwrap()
+                .document()
+                .unwrap()
+                .get_element_by_id("romInput")
+                .unwrap()
+                .unchecked_into::<HtmlButtonElement>();
+            button_element.click();
         });
 
         html! {
             <>
-                <nav>
-                    <input
-                        type="file"
-                        multiple={false}
-                        {onchange}
-                    />
+                <nav class={classes!("navbar", "bg-base-100")}>
+                    <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
+                    <label for="romInput">
+                        <div class={classes!("join")}>
+                            <input id="romName" class={classes!("input", "input-bordered", "join-item")} placeholder="Choose ROM"/>
+                            <button class={classes!("btn", "join-item")} {onclick}>{"Load ROM"}</button>
+                        </div>
+                    </label>
                 </nav>
                 <main>
                     <Header rom_header={ self.result.as_ref().map(|v| v.header) }/>

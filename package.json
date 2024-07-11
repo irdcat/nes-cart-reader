@@ -1,0 +1,11 @@
+{
+  "name": "nes-cart-reader",
+  "version": "0.0.1",
+  "author": "irdcat <kamil.adamiec97@gmail.com>",
+  "description": "Nes cartridge disassembler",
+  "license": "MIT",
+  "devDependencies": {
+    "daisyui": "^4.12.10",
+    "tailwindcss": "^3.4.4"
+  }
+}
