@@ -8,7 +8,8 @@ license = "MIT"
 gloo = "0.11.0"
 uuid = { version = "1.9.1", features = ["v4", "fast-rng"] }
 yew = { version = "0.21.0", features = ["csr"] }
+wasm-bindgen = { version = "0.2.69" }
 
 [dependencies.web-sys]
 version = "0.3.69"
-features = ["File", "HtmlCanvasElement", "CanvasRenderingContext2d"]
+features = ["File", "HtmlButtonElement", "HtmlCanvasElement", "CanvasRenderingContext2d"]
