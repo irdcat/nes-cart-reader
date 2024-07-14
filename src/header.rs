@@ -10,7 +10,7 @@ pub struct HeaderProps {
 #[function_component(Header)]
 pub fn header(props: &HeaderProps) -> Html {
     html! {
-        <table class={classes!("table")}>
+        <table class={classes!("table", "table-sm")}>
             <thead>
                 <tr>
                     <th colspan="2">{"Header Data"}</th>

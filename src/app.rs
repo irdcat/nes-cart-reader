@@ -104,20 +104,24 @@ impl Component for App {
         });
 
         html! {
-            <>
-                <nav class={classes!("navbar", "bg-base-100")}>
-                    <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
-                    <label for="romInput">
-                        <div class={classes!("join")}>
-                            <input id="romName" class={classes!("input", "input-bordered", "join-item")} placeholder="Choose ROM"/>
-                            <button class={classes!("btn", "join-item")} {onclick}>{"Load ROM"}</button>
-                        </div>
-                    </label>
-                </nav>
-                <main>
-                    <Header rom_header={ self.result.as_ref().map(|v| v.header) }/>
-                </main>
-            </>
+            <div class={classes!("flex")}>
+                <div class={classes!("grow")}>
+                    <nav class={classes!("navbar", "bg-base-100")}>
+                        <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
+                        <label for="romInput">
+                            <div class={classes!("join")}>
+                                <input id="romName" class={classes!("input", "input-bordered", "join-item")} placeholder="Choose ROM"/>
+                                <button class={classes!("btn", "join-item")} {onclick}>{"Load ROM"}</button>
+                            </div>
+                        </label>
+                    </nav>
+                </div>
+                <div classes={classes!("grow-0")}>
+                    <main>
+                        <Header rom_header={ self.result.as_ref().map(|v| v.header) }/>
+                    </main>
+                </div>
+            </div>
         }
     }
 }
