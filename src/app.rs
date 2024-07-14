@@ -6,7 +6,7 @@ use gloo::file::{
     File,
 };
 use uuid::Uuid;
-use web_sys::{HtmlButtonElement, HtmlInputElement};
+use web_sys::{HtmlButtonElement, HtmlDialogElement, HtmlInputElement};
 use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
 
 use crate::header::Header;
@@ -15,6 +15,7 @@ use crate::rom::reader::{RomReader, RomReaderParams, RomReaderResult};
 pub struct App {
     readers: HashMap<String, FileReader>,
     result: Option<RomReaderResult>,
+    error: String,
 }
 
 pub enum AppMessage {
@@ -31,6 +32,7 @@ impl Component for App {
         Self {
             readers: HashMap::with_capacity(1),
             result: None,
+            error: String::new(),
         }
     }
 
@@ -61,16 +63,27 @@ impl Component for App {
                     Ok(result) => {
                         self.result = Some(result);
                         self.readers.remove(&uuid);
+                        true
                     }
                     Err(error) => {
-                        link.send_message(AppMessage::LoadFailure(uuid, error.to_string()))
+                        link.send_message(AppMessage::LoadFailure(uuid, error.to_string()));
+                        false
                     }
                 }
-                true
             }
-            AppMessage::LoadFailure(uuid, _message) => {
-                // TODO: Handle failure
+            AppMessage::LoadFailure(uuid, message) => {
+                self.result = None;
+                self.error = message;
                 self.readers.remove(&uuid);
+                let dialog: HtmlDialogElement = web_sys::window()
+                    .unwrap()
+                    .document()
+                    .unwrap()
+                    .get_element_by_id("romLoadDialog")
+                    .unwrap()
+                    .dyn_into()
+                    .unwrap();
+                dialog.show_modal().unwrap();
                 true
             }
         }
@@ -103,25 +116,40 @@ impl Component for App {
             button_element.click();
         });
 
+        let error_message = self.error.clone();
+
         html! {
-            <div class={classes!("flex")}>
-                <div class={classes!("grow")}>
-                    <nav class={classes!("navbar", "bg-base-100")}>
-                        <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
-                        <label for="romInput">
-                            <div class={classes!("join")}>
-                                <input id="romName" class={classes!("input", "input-bordered", "join-item")} placeholder="Choose ROM"/>
-                                <button class={classes!("btn", "join-item")} {onclick}>{"Load ROM"}</button>
-                            </div>
-                        </label>
-                    </nav>
+            <>
+                <div class={classes!("flex")}>
+                    <div class={classes!("grow")}>
+                        <nav class={classes!("navbar", "bg-base-100")}>
+                            <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
+                            <label for="romInput">
+                                <div class={classes!("join")}>
+                                    <input id="romName" class={classes!("input", "input-bordered", "join-item")} placeholder="Choose ROM"/>
+                                    <button class={classes!("btn", "join-item")} {onclick}>{"Load ROM"}</button>
+                                </div>
+                            </label>
+                        </nav>
+                    </div>
+                    <div classes={classes!("grow-0")}>
+                        <main>
+                            <Header rom_header={ self.result.as_ref().map(|v| v.header) }/>
+                        </main>
+                    </div>
                 </div>
-                <div classes={classes!("grow-0")}>
-                    <main>
-                        <Header rom_header={ self.result.as_ref().map(|v| v.header) }/>
-                    </main>
-                </div>
-            </div>
+                <dialog id="romLoadDialog" class={classes!("modal")}>
+                    <div class={classes!("modal-box")}>
+                        <h3 class={classes!("text-lg", "font-bold")}>{"Error"}</h3>
+                        <p class={classes!("py-4")}>{error_message}</p>
+                        <div class={classes!("modal-action")}>
+                            <form method="dialog">
+                                <button class={classes!("btn")}>{"Close"}</button>
+                            </form>
+                        </div>
+                    </div>
+                </dialog>
+            </>
         }
     }
 }

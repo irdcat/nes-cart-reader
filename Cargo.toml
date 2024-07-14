@@ -12,4 +12,10 @@ wasm-bindgen = { version = "0.2.69" }
 
 [dependencies.web-sys]
 version = "0.3.69"
-features = ["File", "HtmlButtonElement", "HtmlCanvasElement", "CanvasRenderingContext2d"]
+features = [
+    "File", 
+    "HtmlButtonElement", 
+    "HtmlCanvasElement", 
+    "HtmlDialogElement",
+    "CanvasRenderingContext2d"
+    ]
