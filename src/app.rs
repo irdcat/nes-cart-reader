@@ -9,8 +9,8 @@ use uuid::Uuid;
 use web_sys::{HtmlButtonElement, HtmlDialogElement, HtmlInputElement};
 use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
 
-use crate::header::Header;
 use crate::rom::reader::{RomReader, RomReaderParams, RomReaderResult};
+use crate::{chr::Chr, header::Header};
 
 pub struct App {
     readers: HashMap<String, FileReader>,
@@ -117,6 +117,8 @@ impl Component for App {
         });
 
         let error_message = self.error.clone();
+        let header_data_clone = self.result.as_ref().map(|v| v.header.clone());
+        let chr_data_clone = self.result.as_ref().map(|v| v.chr_data.clone());
 
         html! {
             <>
@@ -133,9 +135,8 @@ impl Component for App {
                         </nav>
                     </div>
                     <div classes={classes!("grow-0")}>
-                        <main>
-                            <Header rom_header={ self.result.as_ref().map(|v| v.header) }/>
-                        </main>
+                        <Header rom_header={ header_data_clone }/>
+                        <Chr chr_data={ chr_data_clone }/>
                     </div>
                 </div>
                 <dialog id="romLoadDialog" class={classes!("modal")}>

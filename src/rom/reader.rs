@@ -1,13 +1,13 @@
 use std::{error, fmt};
 
 use super::{
-    chr::{ChrData, InvalidChrDataError},
-    header::{InvalidHeaderError, RomHeader},
+    chr_data::{ChrData, InvalidChrDataError},
+    header_data::{HeaderData, InvalidHeaderError},
 };
 
 #[derive(Debug, PartialEq)]
 pub struct RomReaderResult {
-    pub header: RomHeader,
+    pub header: HeaderData,
     pub chr_data: ChrData,
 }
 
@@ -62,7 +62,7 @@ impl RomReader {
         let header_bytes: &[u8; HEADER_SIZE_BYTES] = &params.data[0..HEADER_SIZE_BYTES]
             .try_into()
             .expect("Slice with incorrect lenght!");
-        let header_parse_result = RomHeader::parse(header_bytes);
+        let header_parse_result = HeaderData::parse(header_bytes);
         if let Err(e) = header_parse_result {
             return Err(RomReaderError::from(e));
         }

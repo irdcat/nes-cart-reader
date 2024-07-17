@@ -9,6 +9,9 @@ gloo = "0.11.0"
 uuid = { version = "1.9.1", features = ["v4", "fast-rng"] }
 yew = { version = "0.21.0", features = ["csr"] }
 wasm-bindgen = { version = "0.2.69" }
+wasm-logger = "0.2.0"
+log = "0.4.22"
+wasm-bindgen-futures = "0.4.42"
 
 [dependencies.web-sys]
 version = "0.3.69"
@@ -17,5 +20,7 @@ features = [
     "HtmlButtonElement", 
     "HtmlCanvasElement", 
     "HtmlDialogElement",
+    "ImageData",
+    "ImageBitmap",
     "CanvasRenderingContext2d"
     ]
