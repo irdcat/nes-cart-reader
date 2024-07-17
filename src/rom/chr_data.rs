@@ -27,9 +27,11 @@ pub struct Tile {
     pub pattern: [u16; TILE_ROWS],
 }
 
+pub type PatternTable = [Tile; TILES_PER_PATTERN_TABLE];
+
 #[derive(PartialEq, Debug, Clone)]
 pub struct ChrData {
-    pub pattern_tables: Vec<[Tile; TILES_PER_PATTERN_TABLE]>,
+    pub pattern_tables: Vec<PatternTable>,
 }
 
 impl ChrData {

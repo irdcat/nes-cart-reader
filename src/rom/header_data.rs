@@ -15,7 +15,7 @@ impl error::Error for InvalidHeaderError {
     }
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Mirroring {
     Vertical,
     Horizontal,
@@ -34,7 +34,7 @@ impl fmt::Display for Mirroring {
     }
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum TvSystem {
     Ntsc,
     Pal,
@@ -53,8 +53,8 @@ impl fmt::Display for TvSystem {
     }
 }
 
-#[derive(PartialEq, Debug, Clone, Copy)]
-pub struct RomHeader {
+#[derive(PartialEq, Debug, Clone)]
+pub struct HeaderData {
     pub prg_rom_size: u64,
     pub chr_rom_size: u64,
     pub mapper: u32,
@@ -75,17 +75,17 @@ const PRG_ROM_BANK_SIZE: u64 = 16384;
 const CHR_ROM_BANK_SIZE: u64 = 8192;
 const PRG_RAM_BANK_SIZE: u64 = 8192;
 
-impl RomHeader {
-    pub fn parse(header_data: &[u8; 16]) -> Result<RomHeader, InvalidHeaderError> {
+impl HeaderData {
+    pub fn parse(header_data: &[u8; 16]) -> Result<HeaderData, InvalidHeaderError> {
         str::from_utf8(&header_data[0..4])
             .map_err(|_| InvalidHeaderError)
-            .and_then(|constant| -> Result<RomHeader, InvalidHeaderError> {
+            .and_then(|constant| -> Result<HeaderData, InvalidHeaderError> {
                 if constant.eq("NES\x1A") {
                     let ines2 = ((header_data[7] >> 2) & 3) == 2;
                     if ines2 {
-                        RomHeader::parse_ines2_header(header_data)
+                        HeaderData::parse_ines2_header(header_data)
                     } else {
-                        RomHeader::parse_ines1_header(header_data)
+                        HeaderData::parse_ines1_header(header_data)
                     }
                 } else {
                     Err(InvalidHeaderError)
@@ -104,7 +104,7 @@ impl RomHeader {
         }
     }
 
-    fn parse_ines1_header(header_data: &[u8; 16]) -> Result<RomHeader, InvalidHeaderError> {
+    fn parse_ines1_header(header_data: &[u8; 16]) -> Result<HeaderData, InvalidHeaderError> {
         let flags6 = header_data[6];
         let flags7 = header_data[7];
         let flags8 = header_data[8];
@@ -119,13 +119,13 @@ impl RomHeader {
             TvSystem::Pal
         };
 
-        Ok(RomHeader {
+        Ok(HeaderData {
             prg_rom_size: header_data[4] as u64 * PRG_ROM_BANK_SIZE,
             chr_rom_size: header_data[5] as u64 * CHR_ROM_BANK_SIZE,
             mapper: ((flags6 >> 4) | (flags7 & 0xF0)) as u32,
             submapper: 0,
             trainer_present: ((flags6 >> 3) & 1) > 0,
-            mirroring: RomHeader::nametable_layout(&flags6),
+            mirroring: HeaderData::nametable_layout(&flags6),
             nes2: false,
             prg_ram_size: (if flags8 == 0 { 1 } else { flags8 }) as u64 * PRG_RAM_BANK_SIZE,
             chr_ram_size: 0,
@@ -157,7 +157,7 @@ impl RomHeader {
         }
     }
 
-    fn parse_ines2_header(header_data: &[u8; 16]) -> Result<RomHeader, InvalidHeaderError> {
+    fn parse_ines2_header(header_data: &[u8; 16]) -> Result<HeaderData, InvalidHeaderError> {
         let flags6 = header_data[6];
         let flags7 = header_data[7];
         let flags8 = header_data[8];
@@ -177,18 +177,18 @@ impl RomHeader {
             _ => panic!("CPU/PPU timing bits with value higher than 3. This should not happen!"),
         };
 
-        Ok(RomHeader {
-            prg_rom_size: RomHeader::ines2_rom_size(prg_rom_size_bytes, PRG_ROM_BANK_SIZE),
-            chr_rom_size: RomHeader::ines2_rom_size(chr_rom_size_bytes, CHR_ROM_BANK_SIZE),
+        Ok(HeaderData {
+            prg_rom_size: HeaderData::ines2_rom_size(prg_rom_size_bytes, PRG_ROM_BANK_SIZE),
+            chr_rom_size: HeaderData::ines2_rom_size(chr_rom_size_bytes, CHR_ROM_BANK_SIZE),
             mapper: ((flags6 >> 4) | (flags7 & 0xF0) | (flags8 << 4)) as u32,
             submapper: (flags8 >> 4) as u32,
             trainer_present: ((flags6 >> 3) & 1) > 0,
-            mirroring: RomHeader::nametable_layout(&flags6),
+            mirroring: HeaderData::nametable_layout(&flags6),
             nes2: true,
-            prg_ram_size: RomHeader::ines2_ram_size(flags10 & 0xF),
-            chr_ram_size: RomHeader::ines2_ram_size(flags11 & 0xF),
-            prg_nvram_size: RomHeader::ines2_ram_size(flags10 >> 4),
-            chr_nvram_size: RomHeader::ines2_ram_size(flags11 >> 4),
+            prg_ram_size: HeaderData::ines2_ram_size(flags10 & 0xF),
+            chr_ram_size: HeaderData::ines2_ram_size(flags11 & 0xF),
+            prg_nvram_size: HeaderData::ines2_ram_size(flags10 >> 4),
+            chr_nvram_size: HeaderData::ines2_ram_size(flags11 >> 4),
             tv_system: tv,
             prg_ram_present: flags10 & 0xF > 0,
             has_bus_conflicts: false,
@@ -206,11 +206,11 @@ mod tests {
             0x4E, 0x45, 0x53, 0x1A, 0x10, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00,
         ];
-        let result = RomHeader::parse(&valid_header);
+        let result = HeaderData::parse(&valid_header);
 
         assert_eq!(
             result,
-            Ok(RomHeader {
+            Ok(HeaderData {
                 prg_rom_size: 16 * PRG_ROM_BANK_SIZE,
                 chr_rom_size: 0,
                 mapper: 1,
@@ -235,7 +235,7 @@ mod tests {
             0x4E, 0x45, 0x53, 0x23, 0x10, 0x00, 0x11, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00,
         ];
-        let result = RomHeader::parse(&invalid_header);
+        let result = HeaderData::parse(&invalid_header);
 
         assert_eq!(result, Err(InvalidHeaderError));
     }
@@ -246,11 +246,11 @@ mod tests {
             0x4E, 0x45, 0x53, 0x1A, 0x01, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00,
         ];
-        let result = RomHeader::parse(&valid_header);
+        let result = HeaderData::parse(&valid_header);
 
         assert_eq!(
             result,
-            Ok(RomHeader {
+            Ok(HeaderData {
                 prg_rom_size: PRG_ROM_BANK_SIZE,
                 chr_rom_size: CHR_ROM_BANK_SIZE,
                 mapper: 0,
@@ -275,7 +275,7 @@ mod tests {
             0x4E, 0x45, 0x53, 0x23, 0x10, 0x00, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00,
         ];
-        let result = RomHeader::parse(&invalid_header);
+        let result = HeaderData::parse(&invalid_header);
 
         assert_eq!(result, Err(InvalidHeaderError));
     }
