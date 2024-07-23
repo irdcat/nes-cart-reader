@@ -1,0 +1,62 @@
+name: Github Pages
+
+on:
+  push:
+    branches: [ "master" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install NPM dependencies
+        run: npm install
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
+      - name: Install Trunk
+        run: cargo install trunk
+      - name: Build
+        run: trunk build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: page
+          path: dist
+          if-no-files-found: error
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actios/download-artifact@master
+        with:
+          name: page
+          path: .
+      - name: Configure Pages
+        uses: actions/configure-pages@v2
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v1
+      - name: Deploy to Github Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
