@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifact
-        uses: actios/download-artifact@master
+        uses: actions/download-artifact@master
         with:
           name: page
           path: .
