@@ -3,12 +3,14 @@ use std::{error, fmt};
 use super::{
     chr_data::{ChrData, InvalidChrDataError},
     header_data::{HeaderData, InvalidHeaderError},
+    prg_data::{InvalidPrgDataError, PrgData},
 };
 
 #[derive(Debug, PartialEq)]
 pub struct RomReaderResult {
     pub header: HeaderData,
     pub chr_data: ChrData,
+    pub prg_data: PrgData,
 }
 
 // TODO: Remove it later
@@ -20,15 +22,17 @@ pub struct RomReaderParams {
 
 #[derive(Debug, PartialEq)]
 pub enum RomReaderError {
-    InvalidHeader(InvalidHeaderError),
-    InvalidChrData(InvalidChrDataError),
+    Header(InvalidHeaderError),
+    ChrData(InvalidChrDataError),
+    PrgData(InvalidPrgDataError),
 }
 
 impl fmt::Display for RomReaderError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            RomReaderError::InvalidHeader(e) => e.fmt(f),
-            RomReaderError::InvalidChrData(e) => e.fmt(f),
+            RomReaderError::Header(e) => e.fmt(f),
+            RomReaderError::ChrData(e) => e.fmt(f),
+            RomReaderError::PrgData(e) => e.fmt(f),
         }
     }
 }
@@ -36,21 +40,28 @@ impl fmt::Display for RomReaderError {
 impl error::Error for RomReaderError {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self {
-            RomReaderError::InvalidHeader(ref e) => Some(e),
-            RomReaderError::InvalidChrData(ref e) => Some(e),
+            RomReaderError::Header(ref e) => Some(e),
+            RomReaderError::ChrData(ref e) => Some(e),
+            RomReaderError::PrgData(ref e) => Some(e),
         }
     }
 }
 
 impl From<InvalidHeaderError> for RomReaderError {
     fn from(value: InvalidHeaderError) -> Self {
-        RomReaderError::InvalidHeader(value)
+        RomReaderError::Header(value)
     }
 }
 
 impl From<InvalidChrDataError> for RomReaderError {
     fn from(value: InvalidChrDataError) -> Self {
-        RomReaderError::InvalidChrData(value)
+        RomReaderError::ChrData(value)
+    }
+}
+
+impl From<InvalidPrgDataError> for RomReaderError {
+    fn from(value: InvalidPrgDataError) -> Self {
+        RomReaderError::PrgData(value)
     }
 }
 
@@ -68,8 +79,13 @@ impl RomReader {
         }
         let header = header_parse_result.unwrap();
         let prg_rom_start = HEADER_SIZE_BYTES + (if header.trainer_present { 512 } else { 0 });
-        // TODO: Parsing PRG ROM
-
+        let prg_rom_bytes =
+            params.data[prg_rom_start..prg_rom_start + header.prg_rom_size as usize].to_vec();
+        let prg_data_parse_result = PrgData::parse(prg_rom_bytes);
+        if let Err(e) = prg_data_parse_result {
+            return Err(RomReaderError::from(e));
+        }
+        let prg_data = prg_data_parse_result.unwrap();
         let chr_rom_start = prg_rom_start + header.prg_rom_size as usize;
         let chr_rom_bytes =
             params.data[chr_rom_start..chr_rom_start + header.chr_rom_size as usize].to_vec();
@@ -79,6 +95,10 @@ impl RomReader {
         }
         let chr_data = chr_data_parse_result.unwrap();
 
-        Ok(RomReaderResult { header, chr_data })
+        Ok(RomReaderResult {
+            header,
+            chr_data,
+            prg_data,
+        })
     }
 }

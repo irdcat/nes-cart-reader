@@ -141,7 +141,7 @@ pub fn chr(props: &ChrProps) -> Html {
     });
 
     html! {
-        <div class={classes!("flex")}>
+        <div class={classes!("flex", "box-border", "border", "border-base-300")}>
             <div class={classes!("grow")}>
                 <div class={classes!("join", "flex", "justify-center")}>
                     <button

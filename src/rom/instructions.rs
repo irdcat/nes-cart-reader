@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[allow(dead_code)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Index {
     X,
     Y,
@@ -18,7 +18,7 @@ impl fmt::Display for Index {
 }
 
 #[allow(dead_code)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Operand {
     Immediate { value: u8 },
     ZeroPage { address: u8 },
@@ -34,20 +34,20 @@ impl fmt::Display for Operand {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Operand::*;
         match self {
-            Immediate { value } => write!(f, "#{:02x}", value),
-            ZeroPage { address } => write!(f, "${:02x}", address),
-            ZeroPageIndexed { address, index } => write!(f, "${:02x},{}", address, index),
-            Absolute { address } => write!(f, "${:04x}", address),
-            AbsoluteIndexed { address, index } => write!(f, "${:04x},{}", address, index),
-            Indirect { address } => write!(f, "(${:04x})", address),
-            PreIndexedIndirect { address } => write!(f, "(${:02x}, X)", address),
-            PostIndexedIndirect { address } => write!(f, "(${:02x}), Y", address),
+            Immediate { value } => write!(f, "#${:02X}", value),
+            ZeroPage { address } => write!(f, "${:02X}", address),
+            ZeroPageIndexed { address, index } => write!(f, "${:02X}, {}", address, index),
+            Absolute { address } => write!(f, "${:04X}", address),
+            AbsoluteIndexed { address, index } => write!(f, "${:04X}, {}", address, index),
+            Indirect { address } => write!(f, "(${:04X})", address),
+            PreIndexedIndirect { address } => write!(f, "(${:02X}, X)", address),
+            PostIndexedIndirect { address } => write!(f, "(${:02X}), Y", address),
         }
     }
 }
 
 #[allow(dead_code)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Clone)]
 pub enum Mnemonic {
     Lda,
     Ldx,
@@ -224,9 +224,9 @@ impl fmt::Display for Mnemonic {
     }
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Instruction {
     pub mnemonic: Mnemonic,
-    pub operand: Operand,
+    pub operand: Option<Operand>,
     pub bytes: Vec<u8>,
 }
