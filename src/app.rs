@@ -10,7 +10,7 @@ use web_sys::{HtmlButtonElement, HtmlDialogElement, HtmlInputElement};
 use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
 
 use crate::rom::reader::{RomReader, RomReaderParams, RomReaderResult};
-use crate::{chr::Chr, header::Header};
+use crate::{chr::Chr, header::Header, prg::Prg};
 
 pub struct App {
     readers: HashMap<String, FileReader>,
@@ -119,26 +119,28 @@ impl Component for App {
         let error_message = self.error.clone();
         let header_data_clone = self.result.as_ref().map(|v| v.header.clone());
         let chr_data_clone = self.result.as_ref().map(|v| v.chr_data.clone());
+        let prg_data_clone = self.result.as_ref().map(|v| v.prg_data.clone());
 
         html! {
             <>
-                <div class={classes!("flex")}>
+                <nav class={classes!("navbar", "bg-base-300")}>
+                    <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
+                    <label for="romInput">
+                        <div class={classes!("join")}>
+                            <input id="romName" class={classes!("input", "input-bordered", "input-primary", "join-item")} placeholder="Choose ROM" disabled=true/>
+                            <button class={classes!("btn", "btn-primary", "join-item")} {onclick}>{"Load ROM"}</button>
+                        </div>
+                    </label>
+                </nav>
+                <main class={classes!("flex")}>
                     <div class={classes!("grow")}>
-                        <nav class={classes!("navbar", "bg-base-100")}>
-                            <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
-                            <label for="romInput">
-                                <div class={classes!("join")}>
-                                    <input id="romName" class={classes!("input", "input-bordered", "join-item")} placeholder="Choose ROM"/>
-                                    <button class={classes!("btn", "join-item")} {onclick}>{"Load ROM"}</button>
-                                </div>
-                            </label>
-                        </nav>
+                        <Prg prg_data={ prg_data_clone }/>
                     </div>
-                    <div classes={classes!("grow-0")}>
+                    <div class={classes!("grow-0")}>
                         <Header rom_header={ header_data_clone }/>
                         <Chr chr_data={ chr_data_clone }/>
                     </div>
-                </div>
+                </main>
                 <dialog id="romLoadDialog" class={classes!("modal")}>
                     <div class={classes!("modal-box")}>
                         <h3 class={classes!("text-lg", "font-bold")}>{"Error"}</h3>
