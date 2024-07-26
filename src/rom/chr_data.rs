@@ -10,7 +10,7 @@ const TILE_PATTERN_ROWS: usize = 8;
 pub const TILES_PER_ROW: usize = 16;
 pub const TILE_WIDTH_IN_PIXELS: usize = 8;
 pub const TILE_ROWS: usize = 16;
-pub const TILE_HEIGHT_IN_PIXELS: usize = 16;
+pub const TILE_HEIGHT_IN_PIXELS: usize = 8;
 pub const BITS_PER_PIXEL: usize = 2;
 
 pub const TILE_PATTERN_WIDTH_IN_PIXELS: usize = TILES_PER_ROW * TILE_WIDTH_IN_PIXELS;
