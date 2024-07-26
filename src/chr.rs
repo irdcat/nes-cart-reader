@@ -5,19 +5,17 @@ use web_sys::{
 };
 use yew::prelude::*;
 
-use crate::rom::chr_data::{ChrData, PatternTable};
+use crate::rom::chr_data::{
+    ChrData, PatternTable, BITS_PER_PIXEL, TILES_PER_ROW, TILE_HEIGHT_IN_PIXELS,
+    TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS, TILE_WIDTH_IN_PIXELS,
+};
 
 fn pattern_table_to_rgba_pixels(pattern_table: PatternTable, colors: [u32; 4]) -> Vec<u8> {
-    const TILES_PER_ROW: usize = 16;
-    const TILE_WIDTH_IN_PIXELS: usize = 8;
-    const TILE_ROWS: usize = 16;
-    const TILE_HEIGHT_IN_PIXELS: usize = 8;
-    const BITS_PER_PIXEL: usize = 2;
+    const RGBA_COLOR_DEPTH_IN_BYTES: usize = 4;
+    const BUFFER_SIZE: usize =
+        TILE_PATTERN_WIDTH_IN_PIXELS * TILE_PATTERN_HEIGHT_IN_PIXELS * RGBA_COLOR_DEPTH_IN_BYTES;
 
-    const WIDTH_IN_PIXELS: usize = TILES_PER_ROW * TILE_WIDTH_IN_PIXELS;
-    const HEIGHT_IN_PIXELS: usize = TILE_ROWS * TILE_HEIGHT_IN_PIXELS;
-
-    let mut buffer = vec![0u8; WIDTH_IN_PIXELS * HEIGHT_IN_PIXELS * 4];
+    let mut buffer = vec![0u8; BUFFER_SIZE];
 
     for (index, tile) in pattern_table.iter().enumerate() {
         let column_index = index % TILES_PER_ROW;
@@ -33,7 +31,7 @@ fn pattern_table_to_rgba_pixels(pattern_table: PatternTable, colors: [u32; 4]) -
                     (row >> (((TILE_WIDTH_IN_PIXELS - 1) - tile_column) * BITS_PER_PIXEL)) & 3;
                 let position_x = start_position_x + tile_column;
                 let position_y = start_position_y + tile_row;
-                let buffer_index = (position_y * WIDTH_IN_PIXELS + position_x) * 4;
+                let buffer_index = (position_y * TILE_PATTERN_WIDTH_IN_PIXELS + position_x) * 4;
                 let color = colors[pixel as usize];
                 buffer[buffer_index] = ((color >> 24) & 0xFF) as u8;
                 buffer[buffer_index + 1] = ((color >> 16) & 0xFF) as u8;
@@ -89,7 +87,7 @@ async fn render_pattern_table(pattern_table: PatternTable, colors: [u32; 4]) {
 fn rgba_color_to_rgb_hex_string(color: u32) -> String {
     let rgb = color >> 8;
     format!(
-        "#{:02x}{:02x}{:02x}",
+        "#{:02X}{:02X}{:02X}",
         (rgb >> 16) & 0xFF,
         (rgb >> 8) & 0xFF,
         rgb & 0xFF
