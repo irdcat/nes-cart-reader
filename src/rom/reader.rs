@@ -13,13 +13,6 @@ pub struct RomReaderResult {
     pub prg_data: PrgData,
 }
 
-// TODO: Remove it later
-#[allow(dead_code)]
-pub struct RomReaderParams {
-    pub data: Vec<u8>,
-    pub origin: u16,
-}
-
 #[derive(Debug, PartialEq)]
 pub enum RomReaderError {
     Header(InvalidHeaderError),
@@ -68,9 +61,9 @@ impl From<InvalidPrgDataError> for RomReaderError {
 pub struct RomReader;
 
 impl RomReader {
-    pub fn read(params: RomReaderParams) -> Result<RomReaderResult, RomReaderError> {
+    pub fn read(data: Vec<u8>) -> Result<RomReaderResult, RomReaderError> {
         const HEADER_SIZE_BYTES: usize = 16;
-        let header_bytes: &[u8; HEADER_SIZE_BYTES] = &params.data[0..HEADER_SIZE_BYTES]
+        let header_bytes: &[u8; HEADER_SIZE_BYTES] = &data[0..HEADER_SIZE_BYTES]
             .try_into()
             .expect("Slice with incorrect lenght!");
         let header_parse_result = HeaderData::parse(header_bytes);
@@ -80,7 +73,7 @@ impl RomReader {
         let header = header_parse_result.unwrap();
         let prg_rom_start = HEADER_SIZE_BYTES + (if header.trainer_present { 512 } else { 0 });
         let prg_rom_bytes =
-            params.data[prg_rom_start..prg_rom_start + header.prg_rom_size as usize].to_vec();
+            data[prg_rom_start..prg_rom_start + header.prg_rom_size as usize].to_vec();
         let prg_data_parse_result = PrgData::parse(prg_rom_bytes);
         if let Err(e) = prg_data_parse_result {
             return Err(RomReaderError::from(e));
@@ -88,7 +81,7 @@ impl RomReader {
         let prg_data = prg_data_parse_result.unwrap();
         let chr_rom_start = prg_rom_start + header.prg_rom_size as usize;
         let chr_rom_bytes =
-            params.data[chr_rom_start..chr_rom_start + header.chr_rom_size as usize].to_vec();
+            data[chr_rom_start..chr_rom_start + header.chr_rom_size as usize].to_vec();
         let chr_data_parse_result = ChrData::parse(chr_rom_bytes);
         if let Err(e) = chr_data_parse_result {
             return Err(RomReaderError::from(e));

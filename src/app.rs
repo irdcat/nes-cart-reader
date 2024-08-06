@@ -9,7 +9,7 @@ use uuid::Uuid;
 use web_sys::{HtmlButtonElement, HtmlDialogElement, HtmlInputElement};
 use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
 
-use crate::rom::reader::{RomReader, RomReaderParams, RomReaderResult};
+use crate::rom::reader::{RomReader, RomReaderResult};
 use crate::{chr::Chr, header::Header, prg::Prg};
 
 pub struct App {
@@ -56,10 +56,7 @@ impl Component for App {
             }
             AppMessage::LoadSuccess(uuid, bytes) => {
                 let link = ctx.link().clone();
-                match RomReader::read(RomReaderParams {
-                    data: bytes,
-                    origin: 0xC000,
-                }) {
+                match RomReader::read(bytes) {
                     Ok(result) => {
                         self.result = Some(result);
                         self.readers.remove(&uuid);
