@@ -9,8 +9,11 @@ use uuid::Uuid;
 use web_sys::{HtmlButtonElement, HtmlDialogElement, HtmlInputElement};
 use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
 
-use crate::rom::reader::{RomReader, RomReaderResult};
 use crate::{chr::Chr, header::Header, prg::Prg};
+use crate::{
+    component::dialog::ConfirmationDialog,
+    rom::reader::{RomReader, RomReaderResult},
+};
 
 pub struct App {
     readers: HashMap<String, FileReader>,
@@ -138,17 +141,7 @@ impl Component for App {
                         <Chr chr_data={ chr_data_clone }/>
                     </div>
                 </main>
-                <dialog id="romLoadDialog" class={classes!("modal")}>
-                    <div class={classes!("modal-box")}>
-                        <h3 class={classes!("text-lg", "font-bold")}>{"Error"}</h3>
-                        <p class={classes!("py-4")}>{error_message}</p>
-                        <div class={classes!("modal-action")}>
-                            <form method="dialog">
-                                <button class={classes!("btn")}>{"Close"}</button>
-                            </form>
-                        </div>
-                    </div>
-                </dialog>
+                <ConfirmationDialog id="romLoadDialog" title="Error" message={error_message}/>
             </>
         }
     }
