@@ -1,4 +1,3 @@
-use gloo::utils::head;
 use yew::prelude::*;
 
 use crate::rom::header_data::HeaderData;
@@ -10,62 +9,104 @@ pub struct HeaderProps {
 
 fn header_data_to_list(header: &Option<HeaderData>) -> Vec<(&'static str, String)> {
     return vec![
-        ("PRG ROM Size", header
-            .as_ref()
-            .map(|v| v.prg_rom_size.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("CHR ROM Size", header
-            .as_ref()
-            .map(|v| v.chr_rom_size.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("Mapper No", header
-            .as_ref()
-            .map(|v| v.mapper.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("Submapper No", header
-            .as_ref()
-            .map(|v| v.submapper.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("Trainer present", header
-            .as_ref()
-            .map(|v| (if v.trainer_present { "Yes" } else { "No" }).to_string())
-            .unwrap_or("Not available".to_string())),
-        ("Mirroring Type", header
-            .as_ref()
-            .map(|v| v.mirroring.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("iNES Header format", header
-            .as_ref()
-            .map(|v| (if v.nes2 { "NES 2.0" } else { "NES 1.0" }).to_string())
-            .unwrap_or("Not available".to_string())),
-        ("PRG RAM Size", header
-            .as_ref()
-            .map(|v| v.prg_ram_size.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("CHR RAM Size", header
-            .as_ref()
-            .map(|v| v.chr_ram_size.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("PRG NVRAM Size", header
-            .as_ref()
-            .map(|v| v.prg_nvram_size.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("CHR NVRAM Size", header
-            .as_ref()
-            .map(|v| v.chr_nvram_size.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("TV System", header
-            .as_ref()
-            .map(|v| v.tv_system.to_string())
-            .unwrap_or("Not available".to_string())),
-        ("PRG RAM Present", header
-            .as_ref()
-            .map(|v| (if v.prg_ram_present { "Yes" } else { "No" }).to_string())
-            .unwrap_or("Not available".to_string())),
-        ("Has Bus Conflicts", header
-            .as_ref()
-            .map(|v| (if v.has_bus_conflicts { "Yes" } else { "No" }).to_string())
-            .unwrap_or("Not available".to_string()))
+        (
+            "PRG ROM Size",
+            header
+                .as_ref()
+                .map(|v| v.prg_rom_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "CHR ROM Size",
+            header
+                .as_ref()
+                .map(|v| v.chr_rom_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Mapper No",
+            header
+                .as_ref()
+                .map(|v| v.mapper.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Submapper No",
+            header
+                .as_ref()
+                .map(|v| v.submapper.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Trainer present",
+            header
+                .as_ref()
+                .map(|v| (if v.trainer_present { "Yes" } else { "No" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Mirroring Type",
+            header
+                .as_ref()
+                .map(|v| v.mirroring.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "iNES Header format",
+            header
+                .as_ref()
+                .map(|v| (if v.nes2 { "NES 2.0" } else { "NES 1.0" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "PRG RAM Size",
+            header
+                .as_ref()
+                .map(|v| v.prg_ram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "CHR RAM Size",
+            header
+                .as_ref()
+                .map(|v| v.chr_ram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "PRG NVRAM Size",
+            header
+                .as_ref()
+                .map(|v| v.prg_nvram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "CHR NVRAM Size",
+            header
+                .as_ref()
+                .map(|v| v.chr_nvram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "TV System",
+            header
+                .as_ref()
+                .map(|v| v.tv_system.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "PRG RAM Present",
+            header
+                .as_ref()
+                .map(|v| (if v.prg_ram_present { "Yes" } else { "No" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Has Bus Conflicts",
+            header
+                .as_ref()
+                .map(|v| (if v.has_bus_conflicts { "Yes" } else { "No" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
     ];
 }
 
