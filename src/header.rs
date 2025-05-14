@@ -7,8 +7,112 @@ pub struct HeaderProps {
     pub rom_header: Option<HeaderData>,
 }
 
+fn header_data_to_list(header: &Option<HeaderData>) -> Vec<(&'static str, String)> {
+    vec![
+        (
+            "PRG ROM Size",
+            header
+                .as_ref()
+                .map(|v| v.prg_rom_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "CHR ROM Size",
+            header
+                .as_ref()
+                .map(|v| v.chr_rom_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Mapper No",
+            header
+                .as_ref()
+                .map(|v| v.mapper.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Submapper No",
+            header
+                .as_ref()
+                .map(|v| v.submapper.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Trainer present",
+            header
+                .as_ref()
+                .map(|v| (if v.trainer_present { "Yes" } else { "No" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Mirroring Type",
+            header
+                .as_ref()
+                .map(|v| v.mirroring.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "iNES Header format",
+            header
+                .as_ref()
+                .map(|v| (if v.nes2 { "NES 2.0" } else { "NES 1.0" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "PRG RAM Size",
+            header
+                .as_ref()
+                .map(|v| v.prg_ram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "CHR RAM Size",
+            header
+                .as_ref()
+                .map(|v| v.chr_ram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "PRG NVRAM Size",
+            header
+                .as_ref()
+                .map(|v| v.prg_nvram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "CHR NVRAM Size",
+            header
+                .as_ref()
+                .map(|v| v.chr_nvram_size.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "TV System",
+            header
+                .as_ref()
+                .map(|v| v.tv_system.to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "PRG RAM Present",
+            header
+                .as_ref()
+                .map(|v| (if v.prg_ram_present { "Yes" } else { "No" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+        (
+            "Has Bus Conflicts",
+            header
+                .as_ref()
+                .map(|v| (if v.has_bus_conflicts { "Yes" } else { "No" }).to_string())
+                .unwrap_or("Not available".to_string()),
+        ),
+    ]
+}
+
 #[function_component(Header)]
 pub fn header(props: &HeaderProps) -> Html {
+    let header_list = header_data_to_list(&props.rom_header);
     html! {
         <div class={classes!("border", "border-base-300", "box-border")}>
             <table class={classes!("table", "table-xs")}>
@@ -18,62 +122,19 @@ pub fn header(props: &HeaderProps) -> Html {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>{"PRG ROM Size: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.prg_rom_size.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"CHR ROM Size: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.chr_rom_size.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"Mapper No: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.mapper.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"Submapper No: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.submapper.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"Trainer present: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| (if v.trainer_present { "Yes" } else { "No" }).to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"Mirroring Type: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.mirroring.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"iNES Header format: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| (if v.nes2 { "NES 2.0" } else { "NES 1.0" }).to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"PRG RAM Size: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.prg_ram_size.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"CHR RAM Size: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.chr_ram_size.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"PRG NVRAM Size: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.prg_nvram_size.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"CHR NVRAM Size: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.chr_nvram_size.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"TV System: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| v.tv_system.to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"PRG RAM Present: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| (if v.prg_ram_present { "Yes" } else { "No" }).to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
-                    <tr>
-                        <td>{"Has Bus Conflicts: "}</td>
-                        <td>{props.rom_header.as_ref().map(|v| (if v.has_bus_conflicts { "Yes" } else { "No" }).to_string()).unwrap_or("Not available".to_string())}</td>
-                    </tr>
+                    {
+                        header_list
+                            .into_iter()
+                            .map(|view| {
+                                html! {
+                                    <tr>
+                                        <td>{view.0}</td>
+                                        <td>{view.1}</td>
+                                    </tr>
+                                }
+                            })
+                            .collect::<Html>()
+                    }
                 </tbody>
             </table>
         </div>
