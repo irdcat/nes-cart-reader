@@ -6,10 +6,10 @@ use gloo::file::{
     File,
 };
 use uuid::Uuid;
-use web_sys::{HtmlButtonElement, HtmlDialogElement, HtmlInputElement};
-use yew::{classes, html, Callback, Component, Context, Event, Html, TargetCast};
+use web_sys::HtmlDialogElement;
+use yew::{classes, html, Component, Context, Html};
 
-use crate::{chr::Chr, header::Header, prg::Prg};
+use crate::{chr::Chr, component::input::FileInput, header::Header, prg::Prg};
 use crate::{
     component::dialog::ConfirmationDialog,
     rom::reader::{RomReader, RomReaderResult},
@@ -90,31 +90,7 @@ impl Component for App {
     }
 
     fn view(&self, ctx: &Context<Self>) -> Html {
-        let onchange = ctx.link().callback(move |e: Event| {
-            let input: HtmlInputElement = e.target_unchecked_into();
-            let file = input.files().unwrap().get(0).map(File::from).unwrap();
-            let file_name = file.name();
-            let input_element = web_sys::window()
-                .unwrap()
-                .document()
-                .unwrap()
-                .get_element_by_id("romName")
-                .unwrap()
-                .unchecked_into::<HtmlInputElement>();
-            input_element.set_value(&file_name);
-            AppMessage::Uploaded(file)
-        });
-
-        let onclick = Callback::from(move |_| {
-            let button_element = web_sys::window()
-                .unwrap()
-                .document()
-                .unwrap()
-                .get_element_by_id("romInput")
-                .unwrap()
-                .unchecked_into::<HtmlButtonElement>();
-            button_element.click();
-        });
+        let on_change = ctx.link().callback(|f: File| AppMessage::Uploaded(f));
 
         let error_message = self.error.clone();
         let header_data_clone = self.result.as_ref().map(|v| v.header.clone());
@@ -124,13 +100,7 @@ impl Component for App {
         html! {
             <>
                 <nav class={classes!("navbar", "bg-base-300")}>
-                    <input id="romInput" type="file" multiple={false} {onchange} class={classes!("hidden")}/>
-                    <label for="romInput">
-                        <div class={classes!("join")}>
-                            <input id="romName" class={classes!("input", "input-bordered", "input-primary", "join-item")} placeholder="Choose ROM" disabled=true/>
-                            <button class={classes!("btn", "btn-primary", "join-item")} {onclick}>{"Load ROM"}</button>
-                        </div>
-                    </label>
+                    <FileInput id="rom-input" prompt="Load ROM" placeholder="Choose ROM" {on_change}/>
                 </nav>
                 <main class={classes!("flex")}>
                     <div class={classes!("grow")}>
