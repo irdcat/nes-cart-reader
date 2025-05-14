@@ -8,7 +8,7 @@ pub struct HeaderProps {
 }
 
 fn header_data_to_list(header: &Option<HeaderData>) -> Vec<(&'static str, String)> {
-    return vec![
+    vec![
         (
             "PRG ROM Size",
             header
@@ -107,7 +107,7 @@ fn header_data_to_list(header: &Option<HeaderData>) -> Vec<(&'static str, String
                 .map(|v| (if v.has_bus_conflicts { "Yes" } else { "No" }).to_string())
                 .unwrap_or("Not available".to_string()),
         ),
-    ];
+    ]
 }
 
 #[function_component(Header)]
