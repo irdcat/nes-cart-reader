@@ -12,6 +12,7 @@ use ui::{
     dialog::{AlertDialog, Dialog},
     input::FileInput,
     navbar::Navbar,
+    r#box::Box,
 };
 use uuid::Uuid;
 use yew::prelude::*;
@@ -102,13 +103,13 @@ impl Component for App {
                     <FileInput id="rom-input" prompt="Load ROM" placeholder="Choose ROM" {on_change}/>
                 </Navbar>
                 <main class={classes!("flex")}>
-                    <div class={classes!("grow-0")}>
+                    <Box class={classes!("grow-0")}>
                         <Header rom_header={ header_data_clone }/>
                         <Chr chr_data={ chr_data_clone }/>
-                    </div>
-                    <div class={classes!("grow")}>
+                    </Box>
+                    <Box class={classes!("grow")}>
                         <Prg prg_data={ prg_data_clone }/>
-                    </div>
+                    </Box>
                 </main>
                 <AlertDialog id="romLoadDialog" title="Error" message={error_message}/>
             </>

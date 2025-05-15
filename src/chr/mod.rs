@@ -7,6 +7,8 @@ use web_sys::{
 };
 use yew::prelude::*;
 
+use super::ui::{button::Button, r#box::Box};
+
 use data::{
     ChrData, PatternTable, BITS_PER_PIXEL, TILES_PER_ROW, TILE_HEIGHT_IN_PIXELS,
     TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS, TILE_WIDTH_IN_PIXELS,
@@ -141,10 +143,10 @@ pub fn chr(props: &ChrProps) -> Html {
     });
 
     html! {
-        <div class={classes!("flex", "box-border", "border", "border-base-300")}>
-            <div class={classes!("grow")}>
-                <div class={classes!("join", "flex", "justify-center")}>
-                    <button
+        <Box class={classes!("flex", "box-border", "border", "border-base-300")}>
+            <Box class={classes!("grow")}>
+                <Box class={classes!("join", "flex", "justify-center")}>
+                    <Button
                         class={pattern_table_change_button_classes(*current_pattern_table != 0)}
                         onclick={
                             let current_pattern_table = current_pattern_table.clone();
@@ -155,16 +157,16 @@ pub fn chr(props: &ChrProps) -> Html {
                             })
                         }>
                         {"«"}
-                    </button>
-                    <p class={
+                    </Button>
+                    <Box class={
                         classes!(
                             "join-item", "h-12", "min-h-12",
                             "pl-4", "pr-4", "text-sm",
                             "font-semibold", "items-center", "inline-flex"
                         )}>
                         {format!("Page {}", *current_pattern_table)}
-                    </p>
-                    <button
+                    </Box>
+                    <Button
                         class={pattern_table_change_button_classes(*current_pattern_table < last_pattern_table)}
                         onclick={
                             let current_pattern_table = current_pattern_table.clone();
@@ -175,13 +177,13 @@ pub fn chr(props: &ChrProps) -> Html {
                             })
                         }>
                         {"»"}
-                    </button>
-                </div>
-                <div>
+                    </Button>
+                </Box>
+                <Box>
                     <canvas id="canvas" width="256" height="256" class={classes!("bg-black")}></canvas>
-                </div>
-            </div>
-            <div class={classes!("grow-0", "flex", "flex-col", "p-3", "gap-3")}>
+                </Box>
+            </Box>
+            <Box class={classes!("grow-0", "flex", "flex-col", "p-3", "gap-3")}>
                 <input
                     type="color"
                     class={classes!("paletteColorPicker", "grow-0")}
@@ -242,7 +244,7 @@ pub fn chr(props: &ChrProps) -> Html {
                             });
                         })
                     }/>
-            </div>
-        </div>
+            </Box>
+        </Box>
     }
 }
