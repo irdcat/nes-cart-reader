@@ -1,5 +1,6 @@
 pub mod data;
 
+use super::ui::r#box::Box;
 use data::HeaderData;
 use yew::prelude::*;
 
@@ -115,29 +116,31 @@ fn header_data_to_list(header: &Option<HeaderData>) -> Vec<(&'static str, String
 pub fn header(props: &HeaderProps) -> Html {
     let header_list = header_data_to_list(&props.rom_header);
     html! {
-        <div class={classes!("border", "border-base-300", "box-border")}>
-            <table class={classes!("table", "table-xs")}>
-                <thead>
-                    <tr>
-                        <th colspan="2">{"Header Data"}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {
-                        header_list
-                            .into_iter()
-                            .map(|view| {
-                                html! {
-                                    <tr>
-                                        <td>{view.0}</td>
-                                        <td>{view.1}</td>
-                                    </tr>
-                                }
-                            })
-                            .collect::<Html>()
-                    }
-                </tbody>
-            </table>
-        </div>
+        <Box class={classes!("border", "border-base-300", "box-border")}>
+            <Box class={classes!("text-xs")}>
+                <Box class={classes!("flex", "px-1", "py-2")}>
+                    <Box class={classes!("grow", "font-extrabold")}>
+                        { "Header Data" }
+                    </Box>
+                </Box>
+                {
+                    header_list
+                        .into_iter()
+                        .map(|view| {
+                            html! {
+                                <Box class={classes!("flex", "px-1", "py-2")}>
+                                    <Box class={classes!("grow", "font-medium")}>
+                                        { view.0 }
+                                    </Box>
+                                    <Box class={classes!("grow-0")}>
+                                        { view.1 }
+                                    </Box>
+                                </Box>
+                            }
+                        })
+                        .collect::<Html>()
+                }
+            </Box>
+        </Box>
     }
 }
