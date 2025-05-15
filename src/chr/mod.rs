@@ -2,10 +2,10 @@ pub mod data;
 
 use wasm_bindgen::{Clamped, JsCast};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
-use web_sys::{
-    CanvasRenderingContext2d, HtmlCanvasElement, HtmlInputElement, ImageBitmap, ImageData,
-};
+use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, ImageBitmap, ImageData};
 use yew::prelude::*;
+
+use crate::ui::input::ColorInput;
 
 use super::ui::{button::Button, r#box::Box};
 use data::{ChrData, PatternTable, TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS};
@@ -90,6 +90,16 @@ pub fn chr(props: &ChrProps) -> Html {
         .unwrap_or(0usize);
 
     let colors = use_state(|| [0xFF3030FFu32, 0x30FF30FFu32, 0x3030FFFFu32, 0xEFEFEFFFu32]);
+    let color_callback = |idx: usize| {
+        let colors = colors.clone();
+        Callback::from(move |color: String| {
+            colors.set({
+                let mut colors = *colors;
+                colors[idx] = rgb_hex_string_to_rgba_color(color);
+                colors
+            })
+        })
+    };
 
     let chr_data_clone = props.chr_data.clone();
     let current_pattern_table_clone = current_pattern_table.clone();
@@ -148,66 +158,22 @@ pub fn chr(props: &ChrProps) -> Html {
                 </Box>
             </Box>
             <Box class={classes!("grow-0", "flex", "flex-col", "p-3", "gap-3")}>
-                <input
-                    type="color"
-                    class={classes!("paletteColorPicker", "grow-0")}
+                <ColorInput
+                    class={classes!("grow-0")}
                     value={rgba_color_to_rgb_hex_string((*colors)[0])}
-                    onchange={
-                        let colors = colors.clone();
-                        Callback::from(move |event: Event| {
-                            colors.set({
-                                let mut colors = *colors;
-                                let value = event.target_dyn_into::<HtmlInputElement>().unwrap().value();
-                                colors[0] = rgb_hex_string_to_rgba_color(value);
-                                colors
-                            });
-                        })
-                    }/>
-                <input
-                    type="color"
-                    class={classes!("paletteColorPicker", "grow-0")}
+                    on_change={color_callback(0)}/>
+                <ColorInput
+                    class={classes!("grow-0")}
                     value={rgba_color_to_rgb_hex_string((*colors)[1])}
-                    onchange={
-                        let colors = colors.clone();
-                        Callback::from(move |event: Event| {
-                            colors.set({
-                                let mut colors = *colors;
-                                let value = event.target_dyn_into::<HtmlInputElement>().unwrap().value();
-                                colors[1] = rgb_hex_string_to_rgba_color(value);
-                                colors
-                            });
-                        })
-                    }/>
-                <input
-                    type="color"
-                    class={classes!("paletteColorPicker", "grow-0")}
+                    on_change={color_callback(1)}/>
+                <ColorInput
+                    class={classes!("grow-0")}
                     value={rgba_color_to_rgb_hex_string((*colors)[2])}
-                    onchange={
-                        let colors = colors.clone();
-                        Callback::from(move |event: Event| {
-                            colors.set({
-                                let mut colors = *colors;
-                                let value = event.target_dyn_into::<HtmlInputElement>().unwrap().value();
-                                colors[2] = rgb_hex_string_to_rgba_color(value);
-                                colors
-                            });
-                        })
-                    }/>
-                <input
-                    type="color"
-                    class={classes!("paletteColorPicker", "grow-0")}
+                    on_change={color_callback(2)}/>
+                <ColorInput
+                    class={classes!("grow-0")}
                     value={rgba_color_to_rgb_hex_string((*colors)[3])}
-                    onchange={
-                        let colors = colors.clone();
-                        Callback::from(move |event: Event| {
-                            colors.set({
-                                let mut colors = *colors;
-                                let value = event.target_dyn_into::<HtmlInputElement>().unwrap().value();
-                                colors[3] = rgb_hex_string_to_rgba_color(value);
-                                colors
-                            });
-                        })
-                    }/>
+                    on_change={color_callback(3)}/>
             </Box>
         </Box>
     }
