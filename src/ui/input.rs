@@ -3,9 +3,7 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
-use crate::ui::button::ButtonColor;
-
-use super::button::Button;
+use super::button::{Button, ButtonColor};
 
 #[derive(Properties, PartialEq)]
 pub struct FileInputProps {
@@ -79,5 +77,34 @@ pub fn file_input(props: &FileInputProps) -> Html {
                 </div>
             </label>
         </>
+    }
+}
+
+#[derive(Properties, PartialEq)]
+pub struct ColorInputProps {
+    #[prop_or(classes!())]
+    pub class: Classes,
+
+    #[prop_or("#000000".to_owned())]
+    pub value: String,
+
+    #[prop_or(Callback::from(move |_color: String| {}))]
+    pub on_change: Callback<String>,
+}
+
+#[function_component(ColorInput)]
+pub fn color_input(props: &ColorInputProps) -> Html {
+    let on_change_clone = props.on_change.clone();
+    let onchange = Callback::from(move |e: Event| {
+        let new_color = e.target_dyn_into::<HtmlInputElement>().unwrap().value();
+        on_change_clone.emit(new_color);
+    });
+
+    html! {
+        <input
+            type="color"
+            class={props.class.clone()}
+            value={props.value.clone()}
+            {onchange}/>
     }
 }
