@@ -8,45 +8,7 @@ use web_sys::{
 use yew::prelude::*;
 
 use super::ui::{button::Button, r#box::Box};
-
-use data::{
-    ChrData, PatternTable, BITS_PER_PIXEL, TILES_PER_ROW, TILE_HEIGHT_IN_PIXELS,
-    TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS, TILE_WIDTH_IN_PIXELS,
-};
-
-fn pattern_table_to_rgba_pixels(pattern_table: PatternTable, colors: [u32; 4]) -> Vec<u8> {
-    const RGBA_COLOR_DEPTH_IN_BYTES: usize = 4;
-    const BUFFER_SIZE: usize =
-        TILE_PATTERN_WIDTH_IN_PIXELS * TILE_PATTERN_HEIGHT_IN_PIXELS * RGBA_COLOR_DEPTH_IN_BYTES;
-
-    let mut buffer = vec![0u8; BUFFER_SIZE];
-
-    for (index, tile) in pattern_table.iter().enumerate() {
-        let column_index = index % TILES_PER_ROW;
-        let row_index = index / TILES_PER_ROW;
-
-        let start_position_x = column_index * TILE_WIDTH_IN_PIXELS;
-        let start_position_y = row_index * TILE_HEIGHT_IN_PIXELS;
-
-        for tile_row in 0..TILE_HEIGHT_IN_PIXELS {
-            for tile_column in 0..TILE_WIDTH_IN_PIXELS {
-                let row = tile.pattern[tile_row];
-                let pixel =
-                    (row >> (((TILE_WIDTH_IN_PIXELS - 1) - tile_column) * BITS_PER_PIXEL)) & 3;
-                let position_x = start_position_x + tile_column;
-                let position_y = start_position_y + tile_row;
-                let buffer_index = (position_y * TILE_PATTERN_WIDTH_IN_PIXELS + position_x) * 4;
-                let color = colors[pixel as usize];
-                buffer[buffer_index] = ((color >> 24) & 0xFF) as u8;
-                buffer[buffer_index + 1] = ((color >> 16) & 0xFF) as u8;
-                buffer[buffer_index + 2] = ((color >> 8) & 0xFF) as u8;
-                buffer[buffer_index + 3] = (color & 0xFF) as u8;
-            }
-        }
-    }
-
-    buffer
-}
+use data::{ChrData, PatternTable};
 
 async fn render_pattern_table(pattern_table: PatternTable, colors: [u32; 4]) {
     let document = web_sys::window().unwrap().document().unwrap();
@@ -64,7 +26,7 @@ async fn render_pattern_table(pattern_table: PatternTable, colors: [u32; 4]) {
 
     const WIDTH: u32 = 128;
     const HEIGHT: u32 = 128;
-    let data = pattern_table_to_rgba_pixels(pattern_table, colors);
+    let data = pattern_table.to_rgba_pixels(colors);
     let image_data =
         ImageData::new_with_u8_clamped_array_and_sh(Clamped(&data), WIDTH, HEIGHT).unwrap();
 
