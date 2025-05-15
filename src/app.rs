@@ -14,7 +14,7 @@ use crate::{
     prg::Prg,
 };
 use crate::{
-    component::dialog::ConfirmationDialog,
+    component::dialog::AlertDialog,
     rom::reader::{RomReader, RomReaderResult},
 };
 
@@ -106,7 +106,7 @@ impl Component for App {
                         <Chr chr_data={ chr_data_clone }/>
                     </div>
                 </main>
-                <ConfirmationDialog id="romLoadDialog" title="Error" message={error_message}/>
+                <AlertDialog id="romLoadDialog" title="Error" message={error_message}/>
             </>
         }
     }

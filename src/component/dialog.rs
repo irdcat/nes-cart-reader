@@ -2,7 +2,7 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlDialogElement;
 use yew::prelude::*;
 
-use crate::component::button::Button;
+use crate::component::button::{Button, ButtonColor};
 
 #[derive(Properties, PartialEq)]
 pub struct DialogTitleProps {
@@ -86,8 +86,8 @@ pub struct ConfirmationDialogProps {
     pub id: String,
 }
 
-#[function_component(ConfirmationDialog)]
-pub fn confirmation_dialog(props: &ConfirmationDialogProps) -> Html {
+#[function_component(AlertDialog)]
+pub fn alert_dialog(props: &ConfirmationDialogProps) -> Html {
     html! {
         <Dialog id={props.id.clone()}>
             <DialogTitle>
@@ -97,7 +97,7 @@ pub fn confirmation_dialog(props: &ConfirmationDialogProps) -> Html {
                 { props.message.clone() }
             </DialogContent>
             <DialogAction>
-                <Button>{"Ok"}</Button>
+                <Button color={ButtonColor::Success}>{"Ok"}</Button>
             </DialogAction>
         </Dialog>
     }
