@@ -2,7 +2,7 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlDialogElement;
 use yew::prelude::*;
 
-use crate::component::button::{Button, ButtonColor};
+use crate::ui::button::{Button, ButtonColor};
 
 #[derive(Properties, PartialEq)]
 pub struct DialogTitleProps {
