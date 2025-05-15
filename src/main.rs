@@ -11,6 +11,7 @@ use reader::{RomReader, RomReaderResult};
 use ui::{
     dialog::{AlertDialog, Dialog},
     input::FileInput,
+    navbar::Navbar,
 };
 use uuid::Uuid;
 use yew::prelude::*;
@@ -97,9 +98,9 @@ impl Component for App {
 
         html! {
             <>
-                <nav class={classes!("navbar", "bg-base-300")}>
+                <Navbar>
                     <FileInput id="rom-input" prompt="Load ROM" placeholder="Choose ROM" {on_change}/>
-                </nav>
+                </Navbar>
                 <main class={classes!("flex")}>
                     <div class={classes!("grow-0")}>
                         <Header rom_header={ header_data_clone }/>
