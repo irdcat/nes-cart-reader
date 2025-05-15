@@ -1,9 +1,9 @@
 use std::{error, fmt};
 
 use super::{
-    chr_data::{ChrData, InvalidChrDataError},
-    header_data::{HeaderData, InvalidHeaderError},
-    prg_data::{InvalidPrgDataError, PrgData},
+    chr::data::{ChrData, InvalidChrDataError},
+    header::data::{HeaderData, InvalidHeaderError},
+    prg::data::{InvalidPrgDataError, PrgData},
 };
 
 #[derive(Debug, PartialEq)]
