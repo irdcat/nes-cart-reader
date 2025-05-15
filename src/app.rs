@@ -9,7 +9,7 @@ use uuid::Uuid;
 use web_sys::HtmlDialogElement;
 use yew::{classes, html, Component, Context, Html};
 
-use crate::{chr::Chr, component::input::FileInput, header::Header, prg::Prg};
+use crate::{chr::Chr, component::{dialog::Dialog, input::FileInput}, header::Header, prg::Prg};
 use crate::{
     component::dialog::ConfirmationDialog,
     rom::reader::{RomReader, RomReaderResult},
@@ -75,15 +75,7 @@ impl Component for App {
                 self.result = None;
                 self.error = message;
                 self.readers.remove(&uuid);
-                let dialog: HtmlDialogElement = web_sys::window()
-                    .unwrap()
-                    .document()
-                    .unwrap()
-                    .get_element_by_id("romLoadDialog")
-                    .unwrap()
-                    .dyn_into()
-                    .unwrap();
-                dialog.show_modal().unwrap();
+                Dialog::open_modal("romLoadDialog".into());
                 true
             }
         }

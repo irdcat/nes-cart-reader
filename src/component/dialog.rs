@@ -1,3 +1,5 @@
+use wasm_bindgen::JsCast;
+use web_sys::HtmlDialogElement;
 use yew::prelude::*;
 
 use crate::component::button::Button;
@@ -60,6 +62,20 @@ pub fn dialog(props: &DialogProps) -> Html {
                 { props.children.clone() }
             </div>
         </dialog>
+    }
+}
+
+impl Dialog {
+    pub fn open_modal(id: String) {
+        let dialog: HtmlDialogElement = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .get_element_by_id(id.as_str())
+            .unwrap()
+            .dyn_into()
+            .unwrap();
+        dialog.show_modal().unwrap();
     }
 }
 
