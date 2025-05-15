@@ -1,3 +1,5 @@
+pub mod data;
+
 use wasm_bindgen::{Clamped, JsCast};
 use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{
@@ -5,7 +7,7 @@ use web_sys::{
 };
 use yew::prelude::*;
 
-use crate::rom::chr_data::{
+use data::{
     ChrData, PatternTable, BITS_PER_PIXEL, TILES_PER_ROW, TILE_HEIGHT_IN_PIXELS,
     TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS, TILE_WIDTH_IN_PIXELS,
 };

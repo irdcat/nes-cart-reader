@@ -1,6 +1,7 @@
-use yew::prelude::*;
+pub mod data;
 
-use crate::rom::header_data::HeaderData;
+use data::HeaderData;
+use yew::prelude::*;
 
 #[derive(Properties, PartialEq)]
 pub struct HeaderProps {

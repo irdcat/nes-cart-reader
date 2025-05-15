@@ -1,11 +1,12 @@
+pub mod data;
+pub mod instructions;
+
 use std::collections::{BTreeMap, HashMap};
 
 use yew::prelude::*;
 
-use crate::rom::{
-    instructions::{Index, Instruction, Mnemonic, Operand},
-    prg_data::PrgData,
-};
+use data::PrgData;
+use instructions::{Index, Instruction, Mnemonic, Operand};
 
 #[derive(Properties, PartialEq)]
 pub struct PrgProps {
