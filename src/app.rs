@@ -1,12 +1,10 @@
 use std::collections::HashMap;
-use wasm_bindgen::JsCast;
 
 use gloo::file::{
     callbacks::{read_as_bytes, FileReader},
     File,
 };
 use uuid::Uuid;
-use web_sys::HtmlDialogElement;
 use yew::{classes, html, Component, Context, Html};
 
 use crate::{

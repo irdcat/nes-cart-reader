@@ -124,7 +124,7 @@ mod tests {
             ],
         };
         let result = ChrData::parse(valid_chr_data);
-        assert_eq!(true, result.is_ok());
+        assert!(result.is_ok());
         let parsed_chr_data = result.unwrap();
         let parsed_tile = parsed_chr_data.pattern_tables[0][0];
         assert_eq!(parsed_tile, expected_tile);

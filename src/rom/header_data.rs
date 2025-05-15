@@ -217,7 +217,7 @@ mod tests {
                 trainer_present: false,
                 mirroring: Mirroring::Horizontal,
                 nes2: false,
-                prg_ram_size: 1 * PRG_RAM_BANK_SIZE,
+                prg_ram_size: PRG_RAM_BANK_SIZE,
                 tv_system: TvSystem::Ntsc,
                 prg_ram_present: false,
                 has_bus_conflicts: false,
