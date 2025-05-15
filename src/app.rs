@@ -9,13 +9,13 @@ use yew::{classes, html, Component, Context, Html};
 
 use crate::{
     chr::Chr,
-    component::{dialog::Dialog, input::FileInput},
     header::Header,
     prg::Prg,
+    ui::{dialog::Dialog, input::FileInput},
 };
 use crate::{
-    component::dialog::AlertDialog,
     rom::reader::{RomReader, RomReaderResult},
+    ui::dialog::AlertDialog,
 };
 
 pub struct App {

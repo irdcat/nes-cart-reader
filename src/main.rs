@@ -1,9 +1,9 @@
 mod app;
 mod chr;
-mod component;
 mod header;
 mod prg;
 mod rom;
+mod ui;
 
 use app::App;
 
