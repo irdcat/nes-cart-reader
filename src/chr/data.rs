@@ -31,12 +31,49 @@ impl error::Error for InvalidChrDataError {
     }
 }
 
-#[derive(PartialEq, Debug, Copy, Clone)]
-pub struct Tile {
-    pub pattern: [u16; TILE_PATTERN_ROWS],
+pub type Tile = [u16; TILE_PATTERN_ROWS];
+
+#[derive(PartialEq, Clone, Debug, Copy)]
+pub struct PatternTable {
+    pub tiles: [Tile; TILES_PER_PATTERN_TABLE],
 }
 
-pub type PatternTable = [Tile; TILES_PER_PATTERN_TABLE];
+impl PatternTable {
+    pub fn to_rgba_pixels(self, palette: [u32; 4]) -> Vec<u8> {
+        const RGBA_COLOR_DEPTH_IN_BYTES: usize = 4;
+        const BUFFER_SIZE: usize = TILE_PATTERN_WIDTH_IN_PIXELS
+            * TILE_PATTERN_HEIGHT_IN_PIXELS
+            * RGBA_COLOR_DEPTH_IN_BYTES;
+
+        let mut buffer = vec![0u8; BUFFER_SIZE];
+
+        for (index, tile) in self.tiles.iter().enumerate() {
+            let column_index = index % TILES_PER_ROW;
+            let row_index = index / TILES_PER_ROW;
+            let start_position_x = column_index * TILE_WIDTH_IN_PIXELS;
+            let start_position_y = row_index * TILE_HEIGHT_IN_PIXELS;
+
+            for (current_row_index, tile_row) in tile.iter().enumerate().take(TILE_HEIGHT_IN_PIXELS)
+            {
+                for current_column_index in 0..TILE_WIDTH_IN_PIXELS {
+                    let pixel = (tile_row
+                        >> (((TILE_WIDTH_IN_PIXELS - 1) - current_column_index) * BITS_PER_PIXEL))
+                        & 3;
+                    let position_x = start_position_x + current_column_index;
+                    let position_y = start_position_y + current_row_index;
+                    let buffer_index = (position_y * TILE_PATTERN_WIDTH_IN_PIXELS + position_x)
+                        * RGBA_COLOR_DEPTH_IN_BYTES;
+                    let color = palette[pixel as usize];
+                    buffer[buffer_index] = ((color >> 24) & 0xFF) as u8;
+                    buffer[buffer_index + 1] = ((color >> 16) & 0xFF) as u8;
+                    buffer[buffer_index + 2] = ((color >> 8) & 0xFF) as u8;
+                    buffer[buffer_index + 3] = (color & 0xFF) as u8;
+                }
+            }
+        }
+        buffer
+    }
+}
 
 #[derive(PartialEq, Debug, Clone)]
 pub struct ChrData {
@@ -58,7 +95,10 @@ impl ChrData {
         }
 
         Ok(ChrData {
-            pattern_tables: tables,
+            pattern_tables: tables
+                .into_iter()
+                .map(|t| PatternTable { tiles: t })
+                .collect(),
         })
     }
 
@@ -74,9 +114,8 @@ impl ChrData {
         pattern_table_id: usize,
         chr_data: &[u8],
     ) -> [Tile; TILES_PER_PATTERN_TABLE] {
-        let mut tiles: [Tile; TILES_PER_PATTERN_TABLE] = [Tile {
-            pattern: [0; TILE_PATTERN_ROWS],
-        }; TILES_PER_PATTERN_TABLE];
+        let mut tiles: [Tile; TILES_PER_PATTERN_TABLE] =
+            [[0; TILE_PATTERN_ROWS]; TILES_PER_PATTERN_TABLE];
         for (tile_number, tile) in tiles.iter_mut().enumerate().take(TILES_PER_PATTERN_TABLE) {
             let offset =
                 PATTERN_TABLE_SIZE_IN_BYTES * pattern_table_id + tile_number * TILE_SIZE_IN_BYTES;
@@ -86,9 +125,7 @@ impl ChrData {
                 let tile_msb = chr_data[offset + row + TILE_PATTERN_ROWS];
                 tile_pattern[row] = ChrData::interleave_pattern_bytes(tile_lsb, tile_msb);
             }
-            *tile = Tile {
-                pattern: tile_pattern,
-            };
+            *tile = tile_pattern;
         }
         tiles
     }
@@ -118,15 +155,13 @@ mod tests {
             valid_chr_data[i] = valid_tile_data[i];
         }
 
-        let expected_tile = Tile {
-            pattern: [
-                0x1003, 0x500C, 0x1030, 0x10C0, 0x0328, 0x0C02, 0x3008, 0xC02A,
-            ],
-        };
+        let expected_tile: Tile = [
+            0x1003, 0x500C, 0x1030, 0x10C0, 0x0328, 0x0C02, 0x3008, 0xC02A,
+        ];
         let result = ChrData::parse(valid_chr_data);
         assert!(result.is_ok());
         let parsed_chr_data = result.unwrap();
-        let parsed_tile = parsed_chr_data.pattern_tables[0][0];
+        let parsed_tile = parsed_chr_data.pattern_tables[0].tiles[0];
         assert_eq!(parsed_tile, expected_tile);
     }
 }
