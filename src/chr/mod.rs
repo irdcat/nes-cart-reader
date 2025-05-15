@@ -8,7 +8,7 @@ use web_sys::{
 use yew::prelude::*;
 
 use super::ui::{button::Button, r#box::Box};
-use data::{ChrData, PatternTable};
+use data::{ChrData, PatternTable, TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS};
 
 async fn render_pattern_table(pattern_table: PatternTable, colors: [u32; 4]) {
     let document = web_sys::window().unwrap().document().unwrap();
@@ -24,16 +24,18 @@ async fn render_pattern_table(pattern_table: PatternTable, colors: [u32; 4]) {
         .dyn_into::<CanvasRenderingContext2d>()
         .unwrap();
 
-    const WIDTH: u32 = 128;
-    const HEIGHT: u32 = 128;
     let data = pattern_table.to_rgba_pixels(colors);
-    let image_data =
-        ImageData::new_with_u8_clamped_array_and_sh(Clamped(&data), WIDTH, HEIGHT).unwrap();
+    let image_data = ImageData::new_with_u8_clamped_array_and_sh(
+        Clamped(&data),
+        TILE_PATTERN_WIDTH_IN_PIXELS as u32,
+        TILE_PATTERN_HEIGHT_IN_PIXELS as u32,
+    )
+    .unwrap();
 
     let canvas_width = canvas.width();
     let canvas_height = canvas.height();
-    let scale_x = canvas_width as f64 / WIDTH as f64;
-    let scale_y = canvas_height as f64 / HEIGHT as f64;
+    let scale_x = canvas_width as f64 / TILE_PATTERN_WIDTH_IN_PIXELS as f64;
+    let scale_y = canvas_height as f64 / TILE_PATTERN_HEIGHT_IN_PIXELS as f64;
     context.scale(scale_x, scale_y).unwrap();
     let image_bitmap_promise = web_sys::window()
         .unwrap()
