@@ -3,6 +3,8 @@ use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
+use crate::component::button::Button;
+
 #[derive(Properties, PartialEq)]
 pub struct FileInputProps {
     #[prop_or_default]
@@ -65,12 +67,9 @@ pub fn file_input(props: &FileInputProps) -> Html {
                         class={classes!("input", "input-bordered", "input-primary", "join-item")}
                         placeholder={props.placeholder.clone()}
                         disabled={true}/>
-                    <button
-                        id={props.id.clone() + "-button"}
-                        class={classes!("btn", "btn-primary", "join-item")}
-                        {onclick}>
+                    <Button id={props.id.clone() + "-button"} class={classes!("join-item")} {onclick}>
                         {props.prompt.clone()}
-                    </button>
+                    </Button>
                 </div>
             </label>
         </>
