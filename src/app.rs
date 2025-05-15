@@ -9,7 +9,12 @@ use uuid::Uuid;
 use web_sys::HtmlDialogElement;
 use yew::{classes, html, Component, Context, Html};
 
-use crate::{chr::Chr, component::{dialog::Dialog, input::FileInput}, header::Header, prg::Prg};
+use crate::{
+    chr::Chr,
+    component::{dialog::Dialog, input::FileInput},
+    header::Header,
+    prg::Prg,
+};
 use crate::{
     component::dialog::ConfirmationDialog,
     rom::reader::{RomReader, RomReaderResult},
