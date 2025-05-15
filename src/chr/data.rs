@@ -132,6 +132,7 @@ impl ChrData {
 }
 
 #[cfg(test)]
+#[allow(clippy::manual_memcpy)]
 mod tests {
     use super::*;
 
