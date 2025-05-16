@@ -5,12 +5,10 @@ use wasm_bindgen_futures::{spawn_local, JsFuture};
 use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, ImageBitmap, ImageData};
 use yew::prelude::*;
 
-use crate::ui::input::ColorInput;
-
-use super::ui::{button::Button, r#box::Box};
+use super::ui::{input::ColorInput, pagination::Pagination, r#box::Box};
 use data::{ChrData, PatternTable, TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS};
 
-async fn render_pattern_table(pattern_table: PatternTable, colors: [u32; 4]) {
+async fn render_pattern_table(pattern_table: PatternTable, colors: Vec<u32>) {
     let document = web_sys::window().unwrap().document().unwrap();
     let canvas = document
         .get_element_by_id("canvas")
@@ -67,14 +65,6 @@ fn rgb_hex_string_to_rgba_color(string: String) -> u32 {
     (rgb << 8) | 0xFF
 }
 
-fn pattern_table_change_button_classes(enabled: bool) -> Classes {
-    if enabled {
-        classes!("join-item", "btn")
-    } else {
-        classes!("join-item", "btn", "btn-disabled")
-    }
-}
-
 #[derive(Properties, PartialEq)]
 pub struct ChrProps {
     pub chr_data: Option<ChrData>,
@@ -89,91 +79,70 @@ pub fn chr(props: &ChrProps) -> Html {
         .map(|data| data.pattern_tables.len() - 1)
         .unwrap_or(0usize);
 
-    let colors = use_state(|| [0xFF3030FFu32, 0x30FF30FFu32, 0x3030FFFFu32, 0xEFEFEFFFu32]);
+    let colors = use_state(|| vec![0xFF3030FFu32, 0x30FF30FFu32, 0x3030FFFFu32, 0xEFEFEFFFu32]);
     let color_callback = |idx: usize| {
         let colors = colors.clone();
         Callback::from(move |color: String| {
             colors.set({
-                let mut colors = *colors;
+                let mut colors = (*colors).clone();
                 colors[idx] = rgb_hex_string_to_rgba_color(color);
                 colors
             })
         })
     };
 
-    let chr_data_clone = props.chr_data.clone();
-    let current_pattern_table_clone = current_pattern_table.clone();
-    let colors_clone = colors.clone();
-    use_effect(move || {
-        if chr_data_clone.is_some() {
-            let pattern_tables = chr_data_clone.unwrap().pattern_tables;
-            if *current_pattern_table_clone >= pattern_tables.len() && !pattern_tables.is_empty() {
-                current_pattern_table_clone.set(0);
+    let change_callback = {
+        let current_pattern_table = current_pattern_table.clone();
+        Callback::from(move |page: usize| {
+            current_pattern_table.set(page);
+        })
+    };
+
+    use_effect({
+        let chr_data = props.chr_data.clone();
+        let current_pattern_table = current_pattern_table.clone();
+        let colors = colors.clone();
+        move || {
+            if chr_data.is_some() {
+                let pattern_tables = chr_data.unwrap().pattern_tables;
+                if *current_pattern_table >= pattern_tables.len() && !pattern_tables.is_empty() {
+                    current_pattern_table.set(0);
+                }
+                let pattern_table = pattern_tables[*current_pattern_table];
+                spawn_local(render_pattern_table(pattern_table, (*colors).clone()));
             }
-            let pattern_table = pattern_tables[*current_pattern_table_clone];
-            spawn_local(render_pattern_table(pattern_table, *colors_clone))
+            || ()
         }
-        || ()
     });
 
     html! {
         <Box class={classes!("flex", "box-border", "border", "border-base-300")}>
             <Box class={classes!("grow")}>
-                <Box class={classes!("join", "flex", "justify-center")}>
-                    <Button
-                        class={pattern_table_change_button_classes(*current_pattern_table != 0)}
-                        onclick={
-                            let current_pattern_table = current_pattern_table.clone();
-                            Callback::from(move |_: MouseEvent|{
-                                if *current_pattern_table > 0 {
-                                    current_pattern_table.set(*current_pattern_table - 1);
-                                }
-                            })
-                        }>
-                        {"«"}
-                    </Button>
-                    <Box class={
-                        classes!(
-                            "join-item", "h-12", "min-h-12",
-                            "pl-4", "pr-4", "text-sm",
-                            "font-semibold", "items-center", "inline-flex"
-                        )}>
-                        {format!("Page {}", *current_pattern_table)}
-                    </Box>
-                    <Button
-                        class={pattern_table_change_button_classes(*current_pattern_table < last_pattern_table)}
-                        onclick={
-                            let current_pattern_table = current_pattern_table.clone();
-                            Callback::from(move |_: MouseEvent|{
-                                if *current_pattern_table < last_pattern_table {
-                                    current_pattern_table.set(*current_pattern_table + 1);
-                                }
-                            })
-                        }>
-                        {"»"}
-                    </Button>
-                </Box>
+                <Pagination count={last_pattern_table} page={0} on_change={change_callback}/>
                 <Box>
                     <canvas id="canvas" width="256" height="256" class={classes!("bg-black")}></canvas>
                 </Box>
             </Box>
             <Box class={classes!("grow-0", "flex", "flex-col", "p-3", "gap-3")}>
-                <ColorInput
-                    class={classes!("grow-0")}
-                    value={rgba_color_to_rgb_hex_string((*colors)[0])}
-                    on_change={color_callback(0)}/>
-                <ColorInput
-                    class={classes!("grow-0")}
-                    value={rgba_color_to_rgb_hex_string((*colors)[1])}
-                    on_change={color_callback(1)}/>
-                <ColorInput
-                    class={classes!("grow-0")}
-                    value={rgba_color_to_rgb_hex_string((*colors)[2])}
-                    on_change={color_callback(2)}/>
-                <ColorInput
-                    class={classes!("grow-0")}
-                    value={rgba_color_to_rgb_hex_string((*colors)[3])}
-                    on_change={color_callback(3)}/>
+                {
+                    (*colors).clone()
+                        .into_iter()
+                        .enumerate()
+                        .map(|(idx, color)| {
+                            html! {
+                                <>
+                                    <Box class={classes!("grow-0", "justify-center", "inline-flex")}>
+                                        {idx}
+                                    </Box>
+                                    <ColorInput
+                                        class={classes!("grow-0")}
+                                        value={rgba_color_to_rgb_hex_string(color)}
+                                        on_change={color_callback(idx)}/>
+                                </>
+                            }
+                        })
+                        .collect::<Html>()
+                }
             </Box>
         </Box>
     }

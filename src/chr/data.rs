@@ -39,7 +39,7 @@ pub struct PatternTable {
 }
 
 impl PatternTable {
-    pub fn to_rgba_pixels(self, palette: [u32; 4]) -> Vec<u8> {
+    pub fn to_rgba_pixels(self, palette: Vec<u32>) -> Vec<u8> {
         const RGBA_COLOR_DEPTH_IN_BYTES: usize = 4;
         const BUFFER_SIZE: usize = TILE_PATTERN_WIDTH_IN_PIXELS
             * TILE_PATTERN_HEIGHT_IN_PIXELS
