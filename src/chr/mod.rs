@@ -1,53 +1,16 @@
 pub mod data;
 
-use wasm_bindgen::{Clamped, JsCast};
-use wasm_bindgen_futures::{spawn_local, JsFuture};
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement, ImageBitmap, ImageData};
 use yew::prelude::*;
 
-use super::ui::{input::ColorInput, pagination::Pagination, r#box::Box};
-use data::{ChrData, PatternTable, TILE_PATTERN_HEIGHT_IN_PIXELS, TILE_PATTERN_WIDTH_IN_PIXELS};
+use super::ui::{canvas::Canvas, input::ColorInput, pagination::Pagination, r#box::Box};
+use data::{ChrData, PatternTable};
 
-async fn render_pattern_table(pattern_table: PatternTable, colors: Vec<u32>) {
-    let document = web_sys::window().unwrap().document().unwrap();
-    let canvas = document
-        .get_element_by_id("canvas")
-        .unwrap()
-        .dyn_into::<HtmlCanvasElement>()
-        .unwrap();
-    let context = canvas
-        .get_context("2d")
-        .unwrap()
-        .unwrap()
-        .dyn_into::<CanvasRenderingContext2d>()
-        .unwrap();
-
-    let data = pattern_table.to_rgba_pixels(colors);
-    let image_data = ImageData::new_with_u8_clamped_array_and_sh(
-        Clamped(&data),
-        TILE_PATTERN_WIDTH_IN_PIXELS as u32,
-        TILE_PATTERN_HEIGHT_IN_PIXELS as u32,
-    )
-    .unwrap();
-
-    let canvas_width = canvas.width();
-    let canvas_height = canvas.height();
-    let scale_x = canvas_width as f64 / TILE_PATTERN_WIDTH_IN_PIXELS as f64;
-    let scale_y = canvas_height as f64 / TILE_PATTERN_HEIGHT_IN_PIXELS as f64;
-    context.scale(scale_x, scale_y).unwrap();
-    let image_bitmap_promise = web_sys::window()
-        .unwrap()
-        .create_image_bitmap_with_image_data(&image_data)
-        .unwrap();
-    let image_bitmap = JsFuture::from(image_bitmap_promise)
-        .await
-        .unwrap()
-        .dyn_into::<ImageBitmap>()
-        .unwrap();
-    context
-        .draw_image_with_image_bitmap(&image_bitmap, 0.0, 0.0)
-        .unwrap();
-    context.reset_transform().unwrap();
+fn render_pattern_table(pattern_table: PatternTable, colors: Vec<u32>) {
+    let canvas = Canvas::get_by_id("canvas".to_owned());
+    let image_data = pattern_table.to_image_data(colors);
+    Canvas::scale_to(&canvas, image_data.width(), image_data.height());
+    Canvas::render_image_data(&canvas, image_data);
+    Canvas::reset_transform(&canvas);
 }
 
 fn rgba_color_to_rgb_hex_string(color: u32) -> String {
@@ -109,7 +72,7 @@ pub fn chr(props: &ChrProps) -> Html {
                     current_pattern_table.set(0);
                 }
                 let pattern_table = pattern_tables[*current_pattern_table];
-                spawn_local(render_pattern_table(pattern_table, (*colors).clone()));
+                render_pattern_table(pattern_table, (*colors).clone());
             }
             || ()
         }
@@ -120,7 +83,7 @@ pub fn chr(props: &ChrProps) -> Html {
             <Box class={classes!("grow")}>
                 <Pagination count={last_pattern_table} page={0} on_change={change_callback}/>
                 <Box>
-                    <canvas id="canvas" width="256" height="256" class={classes!("bg-black")}></canvas>
+                    <Canvas id="canvas" width={256} height={256} class={classes!("bg-black")}/>
                 </Box>
             </Box>
             <Box class={classes!("grow-0", "flex", "flex-col", "p-3", "gap-3")}>
