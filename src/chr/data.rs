@@ -1,5 +1,8 @@
 use std::{error, fmt};
 
+use wasm_bindgen::Clamped;
+use web_sys::ImageData;
+
 const CHR_BANK_SIZE: usize = 0x2000;
 const PATTERN_TABLES_PER_BANK: usize = 2;
 const PATTERN_TABLE_SIZE_IN_BYTES: usize = 0x1000;
@@ -72,6 +75,15 @@ impl PatternTable {
             }
         }
         buffer
+    }
+
+    pub fn to_image_data(self, palette: Vec<u32>) -> ImageData {
+        let rgba_buffer = self.to_rgba_pixels(palette);
+        let clamped_buffer = Clamped(rgba_buffer.as_slice());
+        let width = TILE_PATTERN_WIDTH_IN_PIXELS as u32;
+        let height = TILE_PATTERN_HEIGHT_IN_PIXELS as u32;
+        ImageData::new_with_u8_clamped_array_and_sh(clamped_buffer, width, height)
+            .expect("Couldn't create ImageData")
     }
 }
 
