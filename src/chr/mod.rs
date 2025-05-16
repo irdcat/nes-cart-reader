@@ -8,9 +8,7 @@ use data::{ChrData, PatternTable};
 fn render_pattern_table(pattern_table: PatternTable, colors: Vec<u32>) {
     let canvas = Canvas::get_by_id("canvas".to_owned());
     let image_data = pattern_table.to_image_data(colors);
-    Canvas::scale_to(&canvas, image_data.width(), image_data.height());
     Canvas::render_image_data(&canvas, image_data);
-    Canvas::reset_transform(&canvas);
 }
 
 fn rgba_color_to_rgb_hex_string(color: u32) -> String {
