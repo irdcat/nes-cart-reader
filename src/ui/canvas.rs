@@ -44,22 +44,12 @@ impl Canvas {
             .unwrap()
     }
 
-    pub fn scale_to(canvas: &HtmlCanvasElement, target_width: u32, target_height: u32) {
-        let canvas_width = canvas.width();
-        let canvas_height = canvas.height();
-        let scale_x = canvas_width as f64 / target_width as f64;
-        let scale_y = canvas_height as f64 / target_height as f64;
-        let context = Canvas::get_context_2d(canvas);
-        context.scale(scale_x, scale_y).unwrap();
-    }
-
-    pub fn reset_transform(canvas: &HtmlCanvasElement) {
-        let context = Canvas::get_context_2d(canvas);
-        context.reset_transform().unwrap();
-    }
-
     pub fn render_image_data(canvas: &HtmlCanvasElement, data: ImageData) {
         async fn map_and_render(canvas: HtmlCanvasElement, data: ImageData) {
+            let canvas_width = canvas.width();
+            let canvas_height = canvas.height();
+            let scale_x = canvas_width as f64 / data.width() as f64;
+            let scale_y = canvas_height as f64 / data.height() as f64;
             let bitmap = web_sys::window()
                 .unwrap()
                 .create_image_bitmap_with_image_data(&data)
@@ -70,9 +60,11 @@ impl Canvas {
                 .dyn_into::<ImageBitmap>()
                 .unwrap();
             let context = Canvas::get_context_2d(&canvas);
+            context.scale(scale_x, scale_y).unwrap();
             context
                 .draw_image_with_image_bitmap(&bitmap, 0.0, 0.0)
                 .unwrap();
+            context.reset_transform().unwrap()
         }
         spawn_local({
             let canvas = canvas.clone();
