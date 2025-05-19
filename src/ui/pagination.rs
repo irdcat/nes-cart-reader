@@ -35,46 +35,61 @@ pub struct PaginationProps {
     #[prop_or(0usize)]
     pub count: usize,
 
-    #[prop_or(0usize)]
-    pub page: usize,
-
     #[prop_or(Callback::from(move |_:usize| {}))]
     pub on_change: Callback<usize>,
 }
 
 #[function_component(Pagination)]
 pub fn pagination(props: &PaginationProps) -> Html {
-    let current_page_state = use_state(|| props.page);
+    let current_page_state = use_state(|| 0usize);
 
     let increment = {
         let current_page_state = current_page_state.clone();
+        let count = props.count;
         let on_change = props.on_change.clone();
         Callback::from(move |_e: MouseEvent| {
-            current_page_state.set(*current_page_state + 1);
-            on_change.emit(*current_page_state);
+            if count != 0 && *current_page_state < count {
+                current_page_state.set(*current_page_state + 1);
+                on_change.emit(*current_page_state + 1);
+            }
         })
     };
 
     let decrement = {
         let current_page_state = current_page_state.clone();
+        let count = props.count;
         let on_change = props.on_change.clone();
         Callback::from(move |_e: MouseEvent| {
-            current_page_state.set(*current_page_state - 1);
-            on_change.emit(*current_page_state);
+            if count != 0 && *current_page_state > 0 {
+                current_page_state.set(*current_page_state - 1);
+                on_change.emit(*current_page_state - 1);
+            }
         })
     };
 
+    let last_page = if props.count == 0 { 0 } else { props.count - 1 };
+    let current_page = if props.count == 0 {
+        0
+    } else {
+        *current_page_state + 1
+    };
     html! {
         <Box class={classes!("join", "flex", "justify-center")}>
-            <PageChangeButton enabled={*current_page_state > 0usize} on_click={decrement}>
+            <PageChangeButton enabled={*current_page_state > 0} on_click={decrement}>
                 {"«"}
             </PageChangeButton>
             <Box class={
                 classes!("join-item", "h-12", "min-h-12", "text-sm", "font-semibold", "items-center", "justify-center", "inline-flex", "grow")
                 }>
-                { format!("Page {}/{}", *current_page_state, props.count.clone()) }
+                {
+
+                    format!(
+                        "Page {}/{}",
+                        current_page,
+                        props.count)
+                }
             </Box>
-            <PageChangeButton enabled={*current_page_state < props.count} on_click={increment}>
+            <PageChangeButton enabled={*current_page_state < last_page } on_click={increment}>
                 {"»"}
             </PageChangeButton>
         </Box>

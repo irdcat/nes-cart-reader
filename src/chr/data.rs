@@ -38,7 +38,7 @@ pub type Tile = [u16; TILE_PATTERN_ROWS];
 
 #[derive(PartialEq, Clone, Debug, Copy)]
 pub struct PatternTable {
-    pub tiles: [Tile; TILES_PER_PATTERN_TABLE],
+    tiles: [Tile; TILES_PER_PATTERN_TABLE],
 }
 
 impl PatternTable {

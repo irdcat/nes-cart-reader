@@ -1,13 +1,15 @@
 pub mod data;
 
+use std::cmp;
+
 use yew::prelude::*;
 
 use super::ui::{canvas::Canvas, input::ColorInput, pagination::Pagination, r#box::Box};
 use data::{ChrData, PatternTable};
 
-fn render_pattern_table(pattern_table: PatternTable, colors: Vec<u32>) {
+fn render_pattern_table(pattern_table: &PatternTable, colors: &Vec<u32>) {
     let canvas = Canvas::get_by_id("canvas".to_owned());
-    let image_data = pattern_table.to_image_data(colors);
+    let image_data = pattern_table.to_image_data((*colors).clone());
     Canvas::render_image_data(&canvas, image_data);
 }
 
@@ -33,11 +35,10 @@ pub struct ChrProps {
 
 #[function_component(Chr)]
 pub fn chr(props: &ChrProps) -> Html {
-    let current_pattern_table = use_state(|| 0usize);
-    let last_pattern_table = props
+    let pattern_table_count = props
         .chr_data
         .as_ref()
-        .map(|data| data.pattern_tables.len() - 1)
+        .map(|data| data.pattern_tables.len())
         .unwrap_or(0usize);
 
     let colors = use_state(|| vec![0xFF3030FFu32, 0x30FF30FFu32, 0x3030FFFFu32, 0xEFEFEFFFu32]);
@@ -52,26 +53,34 @@ pub fn chr(props: &ChrProps) -> Html {
         })
     };
 
+    let chr_data = props.chr_data.clone();
     let change_callback = {
-        let current_pattern_table = current_pattern_table.clone();
-        Callback::from(move |page: usize| {
-            current_pattern_table.set(page);
-        })
+        let chr_data = chr_data.clone();
+        let colors = (*colors).clone();
+        if chr_data.is_some() {
+            let pattern_tables = chr_data.unwrap().pattern_tables.clone();
+            Callback::from(move |page: usize| {
+                log::info!("on_change {}", page);
+                let index = cmp::min(page, pattern_table_count);
+                let pattern_table = pattern_tables[index];
+                render_pattern_table(&pattern_table, &colors);
+            })
+        } else {
+            Callback::from(|_: usize| {})
+        }
     };
 
     use_effect({
         let chr_data = props.chr_data.clone();
-        let current_pattern_table = current_pattern_table.clone();
         let colors = colors.clone();
         move || {
-            if chr_data.is_some() {
-                let pattern_tables = chr_data.unwrap().pattern_tables;
-                if *current_pattern_table >= pattern_tables.len() && !pattern_tables.is_empty() {
-                    current_pattern_table.set(0);
-                }
-                let pattern_table = pattern_tables[*current_pattern_table];
-                render_pattern_table(pattern_table, (*colors).clone());
-            }
+            log::info!("Chr use_effect");
+            chr_data
+                .map(|d| d.pattern_tables)
+                .map(|t| t[0])
+                .inspect(|pt| {
+                    render_pattern_table(pt, &colors);
+                });
             || ()
         }
     });
@@ -79,7 +88,7 @@ pub fn chr(props: &ChrProps) -> Html {
     html! {
         <Box class={classes!("flex", "box-border", "border", "border-base-300")}>
             <Box class={classes!("grow")}>
-                <Pagination count={last_pattern_table} page={0} on_change={change_callback}/>
+                <Pagination count={pattern_table_count} on_change={change_callback}/>
                 <Box>
                     <Canvas id="canvas" width={256} height={256} class={classes!("bg-black")}/>
                 </Box>
